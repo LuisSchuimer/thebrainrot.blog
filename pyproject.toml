@@ -8,6 +8,8 @@ authors = [
 dependencies = [
     "flask>=3.1.3",
     "flask-limiter>=4.1.1",
+    "pytest>=9.1.1",
+    "pytest-check>=2.9.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -23,6 +25,7 @@ dev-dependencies = []
 [tool.rye.scripts]
 "thebrainrot-blog" = "rye run python -m thebrainrot_blog.main"
 "parser" = "rye run python -m thebrainrot_blog.markdown_handler.parse_markdown"
+"parser-test" = "rye run python -m unittest thebrainrot_blog.tests.parser_test -v"
 
 [tool.hatch.metadata]
 allow-direct-references = true

@@ -1,5 +1,6 @@
 from os import path
 import re
+from typing import Tuple
 
 from thebrainrot_blog.markdown_handler.piece_types import (
     piece_types,
@@ -7,29 +8,30 @@ from thebrainrot_blog.markdown_handler.piece_types import (
     styling_types
 )
 
+class piece:
+    def __init__(self,
+        style_type: piece_types,
+        start_end_index: Tuple[int|None, int|None] = (None, None)
+    ):
+        self.style_type: piece_types = style_type
+        self.start_end_index: tuple[int|None, int|None] = start_end_index
+
 class line:
     def __init__(self,
         content: str = ""
     ):
         self.content: str = content
-        self.styling = {
+        self.styling: dict[styling_types, list[piece]] = {
             styling_types.GLOBAL: [],
             styling_types.SPECIFIC: [] 
         }
 
-    def append_styling_piece(self, piece_type: piece_types, start_end_index: tuple[int, int] = []):
+    def append_styling_piece(self, piece_type: piece_types, start_end_index: Tuple[int|None, int|None] = (None, None)):
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type))
         else: 
             self.styling[styling_types.SPECIFIC].append(piece(style_type=piece_type, start_end_index=start_end_index))
 
-class piece:
-    def __init__(self,
-        style_type: piece_types,
-        start_end_index: tuple[int, int] = []
-    ):
-        self.style_type: piece_types = style_type
-        self.start_end_index: tuple[int, int] = start_end_index
 
 def update_locked_styling_types(found_styling_sequence: piece_types) -> list[piece_types]:
     # Markdown styling syntax enforcer
@@ -46,13 +48,14 @@ def update_locked_styling_types(found_styling_sequence: piece_types) -> list[pie
                 piece_types.TITLE3,
             ]
 
-    return []
+        case _: return []
 
 
-def _construct_line(line_content: str):
+def construct_line(line_content: str):
     current_line = line(content=line_content)
 
-    locked_styling_types: list = []
+    locked_styling_types: list[piece_types] = []
+    current_line_content_list: list[str] = current_line.content.split()
     for seq in current_line.content.split():
         # Set value to detect if no styling pattern matches
         seq_valid = False
@@ -64,6 +67,7 @@ def _construct_line(line_content: str):
             if found_pattern: 
                 seq_valid = True
                 locked_styling_types.extend(update_locked_styling_types(found_styling_sequence=current_styling_pattern))
+                current_line_content_list.pop(0)
 
                 match current_styling_pattern:
                     case piece_types.BLOCKQUOTE: 
@@ -73,23 +77,26 @@ def _construct_line(line_content: str):
         # If no valid pattern found: stop searching global styling
         if not seq_valid: break
 
+    current_line.content = " ".join(current_line_content_list)
 
     # Specific styling detection
 
+    print(current_line.content)
+
     return current_line
 
-def parse(markdown_article_path: str) -> None:
+def parse(markdown_article_path: str) -> list[line] | None:
     if not path.isfile(markdown_article_path): return None
 
-    output: list = []
+    output: list[line] = []
     with open(markdown_article_path, encoding="utf8", mode="r") as article_file:
-        article: list = [line_content.strip() for line_content in article_file]
+        article: list[str] = [line_content.strip() for line_content in article_file]
 
     for line_content in article:
-        output.append(_construct_line(line_content))
+        output.append(construct_line(line_content))
 
     return output
 
 if __name__ == "__main__":
     #parse("./test2.md")
-    _construct_line(">>> - # Test")
+    construct_line(">>> - ## Test")

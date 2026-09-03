@@ -8,3 +8,7 @@ wheels/
 
 # venv
 .venv
+
+# Additional files
+requirements-dev.lock
+settings.json

@@ -17,9 +17,9 @@ class styling_types(Enum):
 piece_seqences = {
     styling_types.GLOBAL: {
         piece_types.BLOCKQUOTE: r"^>.*",
-        piece_types.TITLE1: r"^#",
-        piece_types.TITLE2: r"^#.{1}",
-        piece_types.TITLE3: r"^#.{2}",
+        piece_types.TITLE1: r"^[#]{1}$",
+        piece_types.TITLE2: r"^[#]{2}$",
+        piece_types.TITLE3: r"^[#]{3}$",
         piece_types.BULLET: r"^-",
     },
     styling_types.SPECIFIC: {
