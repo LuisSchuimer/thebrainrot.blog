@@ -32,41 +32,36 @@ class line:
         else: 
             self.styling[styling_types.SPECIFIC].append(piece(style_type=piece_type, start_end_index=start_end_index))
 
+    # Looks at previous styling sequences used and evaluates which styling types are not further usable in a line
+    def invalid_styling_sequences(self) -> list[piece_types]:
+        for styling_type in [elem.style_type for elem in self.styling[styling_types.GLOBAL]]:
+            match styling_type:
+                case piece_types.TITLE1 | piece_types.TITLE2 | piece_types.TITLE3:
+                    return [
+                        piece_types.TITLE1,
+                        piece_types.TITLE2,
+                        piece_types.TITLE3,
+                        piece_types.BLOCKQUOTE
+                    ]
 
-def update_locked_styling_types(found_styling_sequence: piece_types) -> list[piece_types]:
-    # Markdown styling syntax enforcer
-
-    match found_styling_sequence:
-        # Sequences that where used
-        case piece_types.TITLE1 | piece_types.TITLE2 | piece_types.TITLE3:
-            # Sequences that can not be used anymore after this point 
-            return [
-                piece_types.BULLET, 
-                piece_types.BLOCKQUOTE,
-                piece_types.TITLE1,
-                piece_types.TITLE2,
-                piece_types.TITLE3,
-            ]
-
-        case _: return []
+                case _: return []
+        return []
 
 
 def construct_line(line_content: str):
     current_line = line(content=line_content)
 
-    locked_styling_types: list[piece_types] = []
     current_line_content_list: list[str] = current_line.content.split()
     for seq in current_line.content.split():
         # Set value to detect if no styling pattern matches
         seq_valid = False
         for current_styling_pattern in piece_seqences[styling_types.GLOBAL]:
             # If styling is locked, continue to next
-            if current_styling_pattern in locked_styling_types: continue
+            if current_styling_pattern in current_line.invalid_styling_sequences(): continue
             found_pattern = re.search(piece_seqences[styling_types.GLOBAL][current_styling_pattern], seq)
 
             if found_pattern: 
                 seq_valid = True
-                locked_styling_types.extend(update_locked_styling_types(found_styling_sequence=current_styling_pattern))
                 current_line_content_list.pop(0)
 
                 match current_styling_pattern:
@@ -81,7 +76,7 @@ def construct_line(line_content: str):
 
     # Specific styling detection
 
-    print(current_line.content)
+    #print(current_line.content)
 
     return current_line
 

@@ -10,26 +10,12 @@ class ParserTester(unittest.TestCase):
     # global styling translation checks
     def test_global_styling(self):
         styling_tests: dict[str, list[piece_types]] = {
-            "- Test": [
-                piece_types.BULLET
-            ],
-            "# Test": [
-                piece_types.TITLE1
-            ],
-            "- ### Test": [
-                piece_types.BULLET,
-                piece_types.TITLE3
-            ],
-            "> # Test": [
-                piece_types.BLOCKQUOTE,
-                piece_types.TITLE1
-            ],
-            ">> - ## Test": [
-                piece_types.BLOCKQUOTE,
-                piece_types.BLOCKQUOTE,
-                piece_types.BULLET,
-                piece_types.TITLE2
-            ]
+            "- Test": [piece_types.BULLET],
+            "# Test": [piece_types.TITLE1],
+            "# > - Test": [piece_types.TITLE1],
+            "- ### Test": [piece_types.BULLET, piece_types.TITLE3],
+            "> # Test": [ piece_types.BLOCKQUOTE, piece_types.TITLE1],
+            ">> - ## Test": [piece_types.BLOCKQUOTE, piece_types.BLOCKQUOTE, piece_types.BULLET, piece_types.TITLE2]
         }
 
         for test in styling_tests.keys():
@@ -37,5 +23,5 @@ class ParserTester(unittest.TestCase):
             out_styling: list[piece_types] = [elem.style_type for elem in out.styling[styling_types.GLOBAL]]
 
             for i in range(len(styling_tests[test])):
-                self.assertEqual(out_styling[i], styling_tests[test][i], "Global styling type missmatch between expected and output")
-            self.assertIs(len(out_styling), len(styling_tests[test]), "Number of global styling missmatch between expected and output")
+                self.assertEqual(out_styling[i], styling_tests[test][i], "Global styling type mismatch between expected and output")
+            self.assertIs(len(out_styling), len(styling_tests[test]), "Number of global styling mismatch between expected and output")
