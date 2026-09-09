@@ -18,12 +18,11 @@ class piece:
 
 class line:
     def __init__(self,
-        content: str = ""
+        content: list[str|piece] = []
     ):
-        self.content: str = content
+        self.content: list[str|piece] = content
         self.styling: dict[styling_types, list[piece]] = {
             styling_types.GLOBAL: [],
-            styling_types.SPECIFIC: [] 
         }
 
     def append_styling_piece(self, piece_type: piece_types, start_end_index: Tuple[int|None, int|None] = (None, None)):
@@ -49,10 +48,10 @@ class line:
 
 
 def construct_line(line_content: str):
-    current_line = line(content=line_content)
+    current_line = line()
 
-    current_line_content_list: list[str] = current_line.content.split()
-    for seq in current_line.content.split():
+    current_line_content_list: list[str] = line_content.split()
+    for seq in line_content.split():
         # Set value to detect if no styling pattern matches
         seq_valid = False
         for current_styling_pattern in piece_seqences[styling_types.GLOBAL]:
@@ -72,11 +71,11 @@ def construct_line(line_content: str):
         # If no valid pattern found: stop searching global styling
         if not seq_valid: break
 
-    current_line.content = " ".join(current_line_content_list)
+    current_line.content = list[str | piece](current_line_content_list)
 
     # Specific styling detection
 
-    #print(current_line.content)
+    print(current_line.content)
 
     return current_line
 
