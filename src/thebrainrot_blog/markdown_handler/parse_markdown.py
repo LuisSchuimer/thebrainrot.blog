@@ -1,6 +1,6 @@
 from os import path
 import re
-from typing import Tuple
+from typing import Union
 
 from thebrainrot_blog.markdown_handler.piece_types import (
     piece_types,
@@ -11,25 +11,37 @@ from thebrainrot_blog.markdown_handler.piece_types import (
 class piece:
     def __init__(self,
         style_type: piece_types,
-        start_end_index: Tuple[int|None, int|None] = (None, None)
+        start_index: Union[int,None] = None,
+        end_index: Union[int,None] = None
     ):
         self.style_type: piece_types = style_type
-        self.start_end_index: tuple[int|None, int|None] = start_end_index
+        self.start_index: Union[int,None] = start_index
+        self.end_index: Union[int,None] = end_index
 
 class line:
     def __init__(self,
-        content: list[str|piece] = []
+        content: list[Union[str,piece_types]] = []
     ):
-        self.content: list[str|piece] = content
+        self.content: list[Union[str,piece_types]] = content
         self.styling: dict[styling_types, list[piece]] = {
             styling_types.GLOBAL: [],
+            styling_types.SPECIFIC: [],
         }
 
-    def append_styling_piece(self, piece_type: piece_types, start_end_index: Tuple[int|None, int|None] = (None, None)):
+    def append_styling_piece(self, piece_type: piece_types, start_index: int|None = None, end_index: int|None = None) -> bool:
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type))
-        else: 
-            self.styling[styling_types.SPECIFIC].append(piece(style_type=piece_type, start_end_index=start_end_index))
+        else:
+            if start_index != None:
+                self.styling[styling_types.SPECIFIC].append(piece(
+                    style_type=piece_type,
+                    start_index=start_index,
+                    end_index=end_index
+                ))
+                self.content.insert(start_index, piece_type)
+                if end_index != None: self.content.insert(end_index, piece_type)
+            else: return False
+        return True
 
     # Looks at previous styling sequences used and evaluates which styling types are not further usable in a line
     def invalid_styling_sequences(self) -> list[piece_types]:
@@ -48,7 +60,7 @@ class line:
 
 
 def construct_line(line_content: str):
-    current_line = line()
+    current_line: line = line()
 
     current_line_content_list: list[str] = line_content.split()
     for seq in line_content.split():
@@ -71,11 +83,9 @@ def construct_line(line_content: str):
         # If no valid pattern found: stop searching global styling
         if not seq_valid: break
 
-    current_line.content = list[str | piece](current_line_content_list)
+    current_line.content = list[Union[str, piece_types]](current_line_content_list)
 
     # Specific styling detection
-
-    print(current_line.content)
 
     return current_line
 
