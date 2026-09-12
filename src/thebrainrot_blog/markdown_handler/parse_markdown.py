@@ -5,19 +5,23 @@ from typing import Union
 from thebrainrot_blog.markdown_handler.piece_types import (
     piece_types,
     piece_seqences,
-    styling_types
+    styling_types,
+    data_types
 )
 
 class piece:
     def __init__(self,
         style_type: piece_types,
         start_index: Union[int,None] = None,
-        end_index: Union[int,None] = None
+        end_index: Union[int,None] = None,
+        data: dict[data_types, str] = {}
     ):
         self.style_type: piece_types = style_type
         self.start_index: Union[int,None] = start_index
         self.end_index: Union[int,None] = end_index
+        self.data: dict[data_types, str] = data
 
+    def append_data_to_piece(self, data_type: data_types, value: str) -> None: self.data[data_type] = value
 class line:
     def __init__(self,
         content: list[Union[str,piece_types]] = []
@@ -58,8 +62,7 @@ class line:
                 case _: return []
         return []
 
-
-def construct_line(line_content: str):
+def construct_line(line_content: str) -> line:
     current_line: line = line()
 
     current_line_content_list: list[str] = line_content.split()
@@ -86,6 +89,14 @@ def construct_line(line_content: str):
     current_line.content = list[Union[str, piece_types]](current_line_content_list)
 
     # Specific styling detection
+    print(current_line.content)
+    for line_piece in current_line.content:
+        if isinstance(line_piece, piece_types): continue
+
+        for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
+            found_patterns = re.findall(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)
+            if found_patterns: print(f"{found_patterns = }, {current_styling_pattern =}")
+
 
     return current_line
 
@@ -103,4 +114,4 @@ def parse(markdown_article_path: str) -> list[line] | None:
 
 if __name__ == "__main__":
     #parse("./test2.md")
-    construct_line(">>> - ## Test")
+    construct_line(">>> **Tests** are great")

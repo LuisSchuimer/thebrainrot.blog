@@ -13,6 +13,9 @@ class styling_types(Enum):
     GLOBAL = "global"
     SPECIFIC = "specific"
 
+class data_types(Enum):
+    URL = "url"
+    LINKTO = "linkto"
 
 piece_seqences = {
     styling_types.GLOBAL: {
@@ -23,7 +26,7 @@ piece_seqences = {
         piece_types.BULLET: r"^-",
     },
     styling_types.SPECIFIC: {
-        piece_types.BOLD: r"\*\*.*\*\*",
-        piece_types.ITALIC: r"\*.*\*",
+        piece_types.BOLD: r"[*]{2}",
+        piece_types.ITALIC: r"[1]{1}",
     }
 }
