@@ -90,8 +90,8 @@ def construct_line(line_content: str) -> line:
     for line_piece in current_line.content.split():
         for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
             found_patterns = re.findall(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)
-            if found_patterns: print(f"{found_patterns = }, {current_styling_pattern =}")
-
+            if found_patterns: print(f"{found_patterns =}, {current_styling_pattern =}")
+ 
 
     return current_line
 

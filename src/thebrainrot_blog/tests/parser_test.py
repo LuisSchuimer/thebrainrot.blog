@@ -10,22 +10,23 @@ class ParserTester(unittest.TestCase):
 
     # global styling translation checks
     def test_global_styling(self):
-        styling_tests: dict[str, list[piece_types]] = {
-            "- Test": [piece_types.BULLET],
-            "# Test": [piece_types.TITLE1],
-            "# > - Test": [piece_types.TITLE1],
-            "- ### Test": [piece_types.BULLET, piece_types.TITLE3],
-            "> # Test": [ piece_types.BLOCKQUOTE, piece_types.TITLE1],
-            ">> - ## Test": [piece_types.BLOCKQUOTE, piece_types.BLOCKQUOTE, piece_types.BULLET, piece_types.TITLE2]
+        styling_tests: dict[Tuple[str, str], list[piece_types]] = {
+            ("- Test", "Test"): [piece_types.BULLET],
+            ("# Test", "Test"): [piece_types.TITLE1],
+            ("# > - Test", "> - Test"): [piece_types.TITLE1],
+            ("- ### Test", "Test"): [piece_types.BULLET, piece_types.TITLE3],
+            ("> # Test", "Test"): [ piece_types.BLOCKQUOTE, piece_types.TITLE1],
+            (">> - ## Test", "Test"): [piece_types.BLOCKQUOTE, piece_types.BLOCKQUOTE, piece_types.BULLET, piece_types.TITLE2]
         }
 
-        for test in styling_tests.keys():
-            out = construct_line(test)
+        for content, expected_styling_pieces in styling_tests.items():
+            out = construct_line(content[0])
             out_styling: list[piece_types] = [elem.style_type for elem in out.styling[styling_types.GLOBAL]]
 
-            for i in range(len(styling_tests[test])):
-                self.assertEqual(out_styling[i], styling_tests[test][i], "Global styling type mismatch between expected and output")
-            self.assertIs(len(out_styling), len(styling_tests[test]), "Number of global styling mismatch between expected and output")
+            self.assertEqual(out.content, content[1], "Content expected and output mismatch")
+            for i, styling_piece in enumerate(expected_styling_pieces):
+                self.assertEqual(out_styling[i], styling_piece, "Global styling type mismatch between expected and output")
+            self.assertIs(len(out_styling), len(styling_tests[content]), "Number of global styling mismatch between expected and output")
 
     def test_appending_style(self):
         appending_tests: list[Tuple[piece_types, styling_types, int, int]] = [
