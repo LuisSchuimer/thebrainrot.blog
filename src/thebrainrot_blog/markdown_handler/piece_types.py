@@ -26,7 +26,7 @@ piece_seqences = {
         piece_types.BULLET: r"^-",
     },
     styling_types.SPECIFIC: {
-        piece_types.BOLD: r"[*]{2}",
-        piece_types.ITALIC: r"[1]{1}",
+        piece_types.BOLD: r"[\*]{2}",
+        piece_types.ITALIC: r"(?<!\*)\*(?!\*)",
     }
 }

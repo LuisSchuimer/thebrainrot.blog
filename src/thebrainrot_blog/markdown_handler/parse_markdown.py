@@ -24,9 +24,9 @@ class piece:
     def append_data_to_piece(self, data_type: data_types, value: str) -> None: self.data[data_type] = value
 class line:
     def __init__(self,
-        content: list[Union[str,piece_types]] = []
+        content: str = ""
     ):
-        self.content: list[Union[str,piece_types]] = content
+        self.content: str = content
         self.styling: dict[styling_types, list[piece]] = {
             styling_types.GLOBAL: [],
             styling_types.SPECIFIC: [],
@@ -42,8 +42,6 @@ class line:
                     start_index=start_index,
                     end_index=end_index
                 ))
-                self.content.insert(start_index, piece_type)
-                if end_index != None: self.content.insert(end_index, piece_type)
             else: return False
         return True
 
@@ -86,13 +84,10 @@ def construct_line(line_content: str) -> line:
         # If no valid pattern found: stop searching global styling
         if not seq_valid: break
 
-    current_line.content = list[Union[str, piece_types]](current_line_content_list)
+    current_line.content = " ".join(current_line_content_list)
 
     # Specific styling detection
-    print(current_line.content)
-    for line_piece in current_line.content:
-        if isinstance(line_piece, piece_types): continue
-
+    for line_piece in current_line.content.split():
         for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
             found_patterns = re.findall(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)
             if found_patterns: print(f"{found_patterns = }, {current_styling_pattern =}")
