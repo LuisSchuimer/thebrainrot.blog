@@ -32,21 +32,36 @@ class line:
             styling_types.SPECIFIC: [],
         }
 
+    def open_specific_styling(self, style_type: piece_types) -> piece|bool:
+        open_styling_types = [
+            elem 
+            for elem in self.styling[styling_types.SPECIFIC]
+            if elem.style_type == style_type and elem.end_index is None
+        ]
+        if open_styling_types:
+            return open_styling_types[0]
+        else: return False
+
     def append_styling_piece(self, piece_type: piece_types, start_index: int|None = None, end_index: int|None = None) -> bool:
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type))
+            return True
         else:
-            if start_index != None:
+            # Ensure that no new styling type is opened when the same one is still opened
+            if start_index is not None and self.open_specific_styling(piece_type) is False:
                 self.styling[styling_types.SPECIFIC].append(piece(
                     style_type=piece_type,
                     start_index=start_index,
                     end_index=end_index
                 ))
-            else: return False
-        return True
+                return True
+            elif end_index is not None and isinstance((open_obj := self.open_specific_styling(piece_type)), piece): 
+                open_obj.end_index = end_index
+                return True
+        return False
 
     # Looks at previous styling sequences used and evaluates which styling types are not further usable in a line
-    def invalid_styling_sequences(self) -> list[piece_types]:
+    def invalid_global_styling_sequences(self) -> list[piece_types]:
         for styling_type in [elem.style_type for elem in self.styling[styling_types.GLOBAL]]:
             match styling_type:
                 case piece_types.TITLE1 | piece_types.TITLE2 | piece_types.TITLE3:
@@ -69,7 +84,7 @@ def construct_line(line_content: str) -> line:
         seq_valid = False
         for current_styling_pattern in piece_seqences[styling_types.GLOBAL]:
             # If styling is locked, continue to next
-            if current_styling_pattern in current_line.invalid_styling_sequences(): continue
+            if current_styling_pattern in current_line.invalid_global_styling_sequences(): continue
             found_pattern = re.search(piece_seqences[styling_types.GLOBAL][current_styling_pattern], seq)
 
             if found_pattern: 
@@ -88,10 +103,14 @@ def construct_line(line_content: str) -> line:
 
     # Specific styling detection
     for line_piece in current_line.content.split():
+
         for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
-            found_patterns = re.findall(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)
+            found_patterns = re.search(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)
             if found_patterns: print(f"{found_patterns =}, {current_styling_pattern =}")
- 
+
+    #! TEST FOR THIS
+    current_line.append_styling_piece(piece_type=piece_types.BOLD, start_index=3)
+    current_line.append_styling_piece(piece_type=piece_types.BOLD, end_index=5)
 
     return current_line
 
