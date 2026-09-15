@@ -1,15 +1,25 @@
 import unittest
-from typing import Tuple
+from typing import Tuple, Union
 from thebrainrot_blog.markdown_handler.parse_markdown import parse, construct_line, line
 from thebrainrot_blog.markdown_handler.piece_types import piece_types, styling_types
 
 class ParserTester(unittest.TestCase):
+    def shortDescription(self):
+        # Turn of stupid short desctriptions of tests
+        return None
+    
     # Basic .md file handling checks
     def test_invalid_file(self): self.assertIs(parse("./"), None)
     def test_valid_file(self): self.assertIsNot("./README.md", None)
 
     # global styling translation checks
     def test_global_styling(self):
+        """
+        Tests the parser to correctly detect global styling patterns and to 
+        proberly append those to the styling list and remove them out of the content
+        """
+
+        # input_content, output_content : expected detected global piece types (in order)
         styling_tests: dict[Tuple[str, str], list[piece_types]] = {
             ("- Test", "Test"): [piece_types.BULLET],
             ("# Test", "Test"): [piece_types.TITLE1],
@@ -29,6 +39,11 @@ class ParserTester(unittest.TestCase):
             self.assertIs(len(out_styling), len(styling_tests[content]), "Number of global styling mismatch between expected and output")
 
     def test_appending_style(self):
+        """
+        Tests if the parser appends specific and global styling types correctly into each 
+        assined lists inside the line class
+        """
+        # Piece type, styling_type, start index, end_index
         appending_tests: list[Tuple[piece_types, styling_types, int, int]] = [
             (piece_types.BOLD, styling_types.SPECIFIC, 1, 4),
             (piece_types.ITALIC, styling_types.SPECIFIC, 3, 5),
@@ -48,3 +63,25 @@ class ParserTester(unittest.TestCase):
                 self.assertEqual(styling_obj.style_type, params[0], "Styling not appended to SPECIFIC")
                 self.assertEqual(styling_obj.start_index, params[2], "Styling start index mismatch")
                 self.assertEqual(styling_obj.end_index, params[3], "Styling end index mismatch")
+
+    def test_multiple_open_style_detection(self):
+        """
+        Tests the programs capabilities to detect open styling pieces of the same type and 
+        to ensure only ONE open style per type is allowed
+        """
+        
+        # piece type, start index, end index (possibly None), exprected outcome
+        tests: list[Tuple[piece_types, int, Union[None, int], bool]] = [
+            (piece_types.BOLD, 5, None, True),
+            (piece_types.BOLD, 5, None, False),
+            (piece_types.ITALIC, 7, None, True),
+            (piece_types.BOLD, 5, 4, True)
+        ]
+
+        out = line()
+        for test in tests:
+            self.assertEqual(out.append_styling_piece(
+                piece_type=test[0],
+                start_index=test[1],
+                end_index=test[2]
+            ), test[3])

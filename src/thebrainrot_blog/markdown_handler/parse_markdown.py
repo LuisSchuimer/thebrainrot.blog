@@ -108,10 +108,6 @@ def construct_line(line_content: str) -> line:
             found_patterns = re.search(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)
             if found_patterns: print(f"{found_patterns =}, {current_styling_pattern =}")
 
-    #! TEST FOR THIS
-    current_line.append_styling_piece(piece_type=piece_types.BOLD, start_index=3)
-    current_line.append_styling_piece(piece_type=piece_types.BOLD, end_index=5)
-
     return current_line
 
 def parse(markdown_article_path: str) -> list[line] | None:
