@@ -1,3 +1,5 @@
+"Markdown to HTML parser as part of thebrainrot.blog by Luis Schuimer"
+
 from os import path
 import re
 from typing import Union

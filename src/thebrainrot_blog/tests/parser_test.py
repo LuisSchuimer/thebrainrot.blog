@@ -5,9 +5,9 @@ from thebrainrot_blog.markdown_handler.piece_types import piece_types, styling_t
 
 class ParserTester(unittest.TestCase):
     def shortDescription(self):
-        # Turn of stupid short desctriptions of tests
+        # Turn of stupid short descriptions of tests
         return None
-    
+
     # Basic .md file handling checks
     def test_invalid_file(self): self.assertIs(parse("./"), None)
     def test_valid_file(self): self.assertIsNot("./README.md", None)
@@ -43,6 +43,7 @@ class ParserTester(unittest.TestCase):
         Tests if the parser appends specific and global styling types correctly into each 
         assined lists inside the line class
         """
+
         # Piece type, styling_type, start index, end_index
         appending_tests: list[Tuple[piece_types, styling_types, int, int]] = [
             (piece_types.BOLD, styling_types.SPECIFIC, 1, 4),
