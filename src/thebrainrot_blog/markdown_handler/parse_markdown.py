@@ -63,7 +63,7 @@ class line:
         return False
 
     # Looks at previous styling sequences used and evaluates which styling types are not further usable in a line
-    def invalid_global_styling_sequences(self) -> list[piece_types]:
+    def invalid_global_styling_sequences(self) -> list[Union[piece_types,None]]:
         for styling_type in [elem.style_type for elem in self.styling[styling_types.GLOBAL]]:
             match styling_type:
                 case piece_types.TITLE1 | piece_types.TITLE2 | piece_types.TITLE3:
@@ -71,10 +71,10 @@ class line:
                         piece_types.TITLE1,
                         piece_types.TITLE2,
                         piece_types.TITLE3,
-                        piece_types.BLOCKQUOTE
+                        piece_types.BLOCKQUOTE,
+                        piece_types.BULLET
                     ]
-
-                case _: return []
+                case _: continue
         return []
 
 def construct_line(line_content: str) -> line:
@@ -103,6 +103,7 @@ def construct_line(line_content: str) -> line:
 
     current_line.content = " ".join(current_line_content_list)
 
+
     # Specific styling detection
     for line_piece in current_line.content.split():
 
@@ -126,4 +127,4 @@ def parse(markdown_article_path: str) -> list[line] | None:
 
 if __name__ == "__main__":
     #parse("./test2.md")
-    construct_line(">>> **Tests** are great")
+    construct_line("# **Tests** are great")

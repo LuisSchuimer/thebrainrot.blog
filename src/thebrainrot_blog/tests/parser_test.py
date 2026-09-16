@@ -24,6 +24,8 @@ class ParserTester(unittest.TestCase):
             ("- Test", "Test"): [piece_types.BULLET],
             ("# Test", "Test"): [piece_types.TITLE1],
             ("# > - Test", "> - Test"): [piece_types.TITLE1],
+            ("> ## > - Test", "> - Test"): [piece_types.BLOCKQUOTE, piece_types.TITLE2],
+            ("- ### > - Test", "> - Test"): [piece_types.BULLET, piece_types.TITLE3],
             ("- ### Test", "Test"): [piece_types.BULLET, piece_types.TITLE3],
             ("> # Test", "Test"): [ piece_types.BLOCKQUOTE, piece_types.TITLE1],
             (">> - ## Test", "Test"): [piece_types.BLOCKQUOTE, piece_types.BLOCKQUOTE, piece_types.BULLET, piece_types.TITLE2]
