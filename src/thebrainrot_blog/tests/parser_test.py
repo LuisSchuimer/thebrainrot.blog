@@ -47,10 +47,10 @@ class ParserTester(unittest.TestCase):
         """
 
         # Piece type, styling_type, start index, end_index
-        appending_tests: list[Tuple[piece_types, styling_types, int, int]] = [
-            (piece_types.BOLD, styling_types.SPECIFIC, 1, 4),
-            (piece_types.ITALIC, styling_types.SPECIFIC, 3, 5),
-            (piece_types.TITLE1, styling_types.GLOBAL, 0, 0)
+        appending_tests: list[Tuple[piece_types, styling_types, Tuple[int, int], Tuple[int, int]]] = [
+            (piece_types.BOLD, styling_types.SPECIFIC, (1, 4), (4, 2)),
+            (piece_types.ITALIC, styling_types.SPECIFIC, (3,2), (5,3)),
+            (piece_types.TITLE1, styling_types.GLOBAL, (2,4), (2,3))
         ]
 
         for params in appending_tests:
@@ -73,12 +73,12 @@ class ParserTester(unittest.TestCase):
         to ensure only ONE open style per type is allowed
         """
         
-        # piece type, start index, end index (possibly None), exprected outcome
-        tests: list[Tuple[piece_types, int, Union[None, int], bool]] = [
-            (piece_types.BOLD, 5, None, True),
-            (piece_types.BOLD, 5, None, False),
-            (piece_types.ITALIC, 7, None, True),
-            (piece_types.BOLD, 5, 4, True)
+        # piece type, start index (word, word index), end index (possibly None), exprected outcome
+        tests: list[Tuple[piece_types, Tuple[int, int], Union[Tuple[int, int], None], bool]] = [
+            (piece_types.BOLD, (1, 5), None, True),
+            (piece_types.BOLD, (3,2), None, False),
+            (piece_types.ITALIC, (1,7), None, True),
+            (piece_types.BOLD, (8,5), (3,2), True)
         ]
 
         out = line()

@@ -2,7 +2,7 @@
 
 from os import path
 import re
-from typing import Union
+from typing import Union, Tuple
 
 from thebrainrot_blog.markdown_handler.piece_types import (
     piece_types,
@@ -14,13 +14,13 @@ from thebrainrot_blog.markdown_handler.piece_types import (
 class piece:
     def __init__(self,
         style_type: piece_types,
-        start_index: Union[int,None] = None,
-        end_index: Union[int,None] = None,
+        start_index: Union[Tuple[int, int], None] = None,
+        end_index: Union[Tuple[int, int], None] = None,
         data: dict[data_types, str] = {}
     ):
         self.style_type: piece_types = style_type
-        self.start_index: Union[int,None] = start_index
-        self.end_index: Union[int,None] = end_index
+        self.start_index: Union[Tuple[int, int], None] = start_index
+        self.end_index: Union[Tuple[int, int], None] = end_index
         self.data: dict[data_types, str] = data
 
     def append_data_to_piece(self, data_type: data_types, value: str) -> None: self.data[data_type] = value
@@ -44,10 +44,7 @@ class line:
             return open_styling_types[0]
         else: return False
 
-    def get_content_index(self, content_piece_index: int, index_in_piece: int):
-        pass
-
-    def append_styling_piece(self, piece_type: piece_types, start_index: int|None = None, end_index: int|None = None) -> bool:
+    def append_styling_piece(self, piece_type: piece_types, start_index: Union[Tuple[int, int], None] = None, end_index: Union[Tuple[int, int], None] = None) -> bool:
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type))
             return True
@@ -108,7 +105,7 @@ def construct_line(line_content: str) -> line:
 
 
     # Specific styling detection
-    for count, line_piece in enumerate(current_line_content_list):
+    for word_count, line_piece in enumerate(current_line_content_list):
         for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
             seq_found: bool = True
             while seq_found:
@@ -116,15 +113,17 @@ def construct_line(line_content: str) -> line:
 
                 if found_pattern: 
                     line_piece = line_piece[:found_pattern.start()] + line_piece[found_pattern.end():]
-                    current_line_content_list[count] = line_piece
+                    current_line_content_list[word_count] = line_piece
 
                     if not (open_styling := current_line.open_specific_styling(style_type=current_styling_pattern)):
                         current_line.append_styling_piece(
                             piece_type=current_styling_pattern,
-                            start_index=int(found_pattern.end() + 1),
+                            start_index=(word_count, int(found_pattern.start())),
                             end_index=None
                         )
-                    elif isinstance(open_styling, piece): open_styling.end_index = int(found_pattern.start() - 1)
+                    elif isinstance(open_styling, piece): open_styling.end_index = (word_count, int(found_pattern.start() - 1))
+
+    current_line.content = " ".join(current_line_content_list)
 
     return current_line
 
@@ -142,4 +141,4 @@ def parse(markdown_article_path: str) -> list[line] | None:
 
 if __name__ == "__main__":
     #parse("./test2.md")
-    construct_line("# **Tests** are great")
+    construct_line("# *Te*s**ts** are great")
