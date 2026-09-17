@@ -44,6 +44,9 @@ class line:
             return open_styling_types[0]
         else: return False
 
+    def get_content_index(self, content_piece_index: int, index_in_piece: int):
+        pass
+
     def append_styling_piece(self, piece_type: piece_types, start_index: int|None = None, end_index: int|None = None) -> bool:
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type))
@@ -105,11 +108,23 @@ def construct_line(line_content: str) -> line:
 
 
     # Specific styling detection
-    for line_piece in current_line.content.split():
-
+    for count, line_piece in enumerate(current_line_content_list):
         for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
-            found_patterns = re.search(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)
-            if found_patterns: print(f"{found_patterns =}, {current_styling_pattern =}")
+            seq_found: bool = True
+            while seq_found:
+                seq_found = (found_pattern := re.search(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)) is not None
+
+                if found_pattern: 
+                    line_piece = line_piece[:found_pattern.start()] + line_piece[found_pattern.end():]
+                    current_line_content_list[count] = line_piece
+
+                    if not (open_styling := current_line.open_specific_styling(style_type=current_styling_pattern)):
+                        current_line.append_styling_piece(
+                            piece_type=current_styling_pattern,
+                            start_index=int(found_pattern.end() + 1),
+                            end_index=None
+                        )
+                    elif isinstance(open_styling, piece): open_styling.end_index = int(found_pattern.start() - 1)
 
     return current_line
 
