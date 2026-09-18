@@ -40,6 +40,43 @@ class ParserTester(unittest.TestCase):
                 self.assertEqual(out_styling[i], styling_piece, "Global styling type mismatch between expected and output")
             self.assertIs(len(out_styling), len(styling_tests[content]), "Number of global styling mismatch between expected and output")
 
+    def test_specific_styling(self):
+        """
+        Test the detection of specific styling types and deletion of required 
+        detection patterns. Additionally it checks if indexes of start and end of styling is correct
+        """
+        
+        #! More tests
+        styling_tests: dict[Tuple[str, str], list[dict[str, Union[piece_types, Tuple[int, int]]]]] = {
+            ("**This is** a test", "This is a test"): [
+                {
+                    "styling_piece": piece_types.BOLD,
+                    "start_index": (0,0),
+                    "end_index": (1,1)
+                },
+            ],
+            ("Tests are very **important** for *software*", "Tests are very important for software"): [
+                {
+                    "styling_piece": piece_types.BOLD,
+                    "start_index": (3,0),
+                    "end_index": (3,8)
+                },
+                {
+                    "styling_piece": piece_types.ITALIC,
+                    "start_index": (5,0),
+                    "end_index": (5,7)
+                }
+            ]
+        }
+
+        for content, expected_pieces in styling_tests.items():
+            out = construct_line(line_content=content[0])
+
+            for i, styling_piece in enumerate(out.styling[styling_types.SPECIFIC]):
+                self.assertEqual(expected_pieces[i]["styling_piece"], styling_piece.style_type, "Specific styling type mismatch")
+                self.assertEqual(expected_pieces[i]["start_index"], styling_piece.start_index, "Specific styling start_index mismatch")
+                self.assertEqual(expected_pieces[i]["end_index"], styling_piece.end_index, "Specific styling end_index mismatch")
+
     def test_appending_style(self):
         """
         Tests if the parser appends specific and global styling types correctly into each 

@@ -101,9 +101,6 @@ def construct_line(line_content: str) -> line:
         # If no valid pattern found: stop searching global styling
         if not seq_valid: break
 
-    current_line.content = " ".join(current_line_content_list)
-
-
     # Specific styling detection
     for word_count, line_piece in enumerate(current_line_content_list):
         for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
