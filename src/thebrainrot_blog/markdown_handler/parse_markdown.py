@@ -138,4 +138,4 @@ def parse(markdown_article_path: str) -> list[line] | None:
 
 if __name__ == "__main__":
     #parse("./test2.md")
-    construct_line("# *Te*s**ts** are great")
+    construct_line("Tests are ~~not~~ ==important==")

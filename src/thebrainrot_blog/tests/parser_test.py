@@ -45,7 +45,7 @@ class ParserTester(unittest.TestCase):
         Test the detection of specific styling types and deletion of required 
         detection patterns. Additionally it checks if indexes of start and end of styling is correct
         """
-        
+
         #! More tests
         styling_tests: dict[Tuple[str, str], list[dict[str, Union[piece_types, Tuple[int, int]]]]] = {
             ("**This is** a test", "This is a test"): [
@@ -65,6 +65,18 @@ class ParserTester(unittest.TestCase):
                     "styling_piece": piece_types.ITALIC,
                     "start_index": (5,0),
                     "end_index": (5,7)
+                }
+            ],
+            ("Tests are ~~not~~ ==important==", "Tests are not important"): [
+                {
+                    "styling_piece": piece_types.STRIKETHROUGH,
+                    "start_index": (2,0),
+                    "end_index": (2,2)
+                },
+                {
+                    "styling_piece": piece_types.HIGHLIGHT,
+                    "start_index": (3,0),
+                    "end_index": (3,8)
                 }
             ]
         }

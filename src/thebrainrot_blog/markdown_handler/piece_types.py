@@ -11,6 +11,8 @@ class piece_types(Enum):
     BOLD = "bold"
     ITALIC = "italic"
     BLOCKQUOTE = "blockquote"
+    STRIKETHROUGH = "strikethrough"
+    HIGHLIGHT = "highlight"
 
 class styling_types(Enum):
     """
@@ -45,5 +47,7 @@ piece_seqences = {
     styling_types.SPECIFIC: {
         piece_types.BOLD: r"[\*]{2}",
         piece_types.ITALIC: r"(?<!\*)\*(?!\*)",
+        piece_types.STRIKETHROUGH: r"[~]{2}",
+        piece_types.HIGHLIGHT: r"[=]{2}"
     }
 }
