@@ -10,3 +10,4 @@
   - [ ] Images
   - [ ] URLS (href)
   - [ ] Links inside document
+- Rethink the **specific styling detection system** for code reduction

@@ -116,24 +116,17 @@ class ParserTester(unittest.TestCase):
                 self.assertEqual(styling_obj.start_index, params[2], "Styling start index mismatch")
                 self.assertEqual(styling_obj.end_index, params[3], "Styling end index mismatch")
 
-    def test_multiple_open_style_detection(self):
+    def test_left_opened_styling(self):
         """
-        Tests the programs capabilities to detect open styling pieces of the same type and 
-        to ensure only ONE open style per type is allowed
+        Test that the program keeps a styling sequence in the content as long as
+        it has not been closed yet
         """
         
-        # piece type, start index (word, word index), end index (possibly None), exprected outcome
-        tests: list[Tuple[piece_types, Tuple[int, int], Union[Tuple[int, int], None], bool]] = [
-            (piece_types.BOLD, (1, 5), None, True),
-            (piece_types.BOLD, (3,2), None, False),
-            (piece_types.ITALIC, (1,7), None, True),
-            (piece_types.BOLD, (8,5), (3,2), True)
+        # input content, output content
+        tests: list[Tuple[str, str]] = [
+            ("This stying pattern (**) is nice", "This stying pattern (**) is nice"),
+            ("I **love** this pattern *", "I love this pattern *"),
+            ("~~ Check out those lines", "~~ Check out those lines")
         ]
 
-        out = line()
-        for test in tests:
-            self.assertEqual(out.append_styling_piece(
-                piece_type=test[0],
-                start_index=test[1],
-                end_index=test[2]
-            ), test[3])
+        for test in tests: self.assertEqual(construct_line(test[0]).content, test[1])

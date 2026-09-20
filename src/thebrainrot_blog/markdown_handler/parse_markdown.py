@@ -34,33 +34,19 @@ class line:
             styling_types.SPECIFIC: [],
         }
 
-    def open_specific_styling(self, style_type: piece_types) -> piece|bool:
-        open_styling_types = [
-            elem 
-            for elem in self.styling[styling_types.SPECIFIC]
-            if elem.style_type == style_type and elem.end_index is None
-        ]
-        if open_styling_types:
-            return open_styling_types[0]
-        else: return False
-
     def append_styling_piece(self, piece_type: piece_types, start_index: Union[Tuple[int, int], None] = None, end_index: Union[Tuple[int, int], None] = None) -> bool:
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type))
             return True
         else:
-            # Ensure that no new styling type is opened when the same one is still opened
-            if start_index is not None and self.open_specific_styling(piece_type) is False:
+            if start_index is not None and end_index is not None:
                 self.styling[styling_types.SPECIFIC].append(piece(
                     style_type=piece_type,
                     start_index=start_index,
                     end_index=end_index
                 ))
                 return True
-            elif end_index is not None and isinstance((open_obj := self.open_specific_styling(piece_type)), piece): 
-                open_obj.end_index = end_index
-                return True
-        return False
+            return False
 
     # Looks at previous styling sequences used and evaluates which styling types are not further usable in a line
     def invalid_global_styling_sequences(self) -> list[Union[piece_types,None]]:
@@ -78,6 +64,10 @@ class line:
         return []
 
 def construct_line(line_content: str) -> line:
+    def delete_indexes_from_word(word: str, *indexes: Tuple[int,int]) -> str:
+        for index in indexes: word = word[:index[0]] + word[index[1]:]
+        return word
+    
     current_line: line = line()
 
     current_line_content_list: list[str] = line_content.split()
@@ -102,23 +92,34 @@ def construct_line(line_content: str) -> line:
         if not seq_valid: break
 
     # Specific styling detection
+    unfinished_styling_pieces: dict[piece_types, Tuple[int,int,int]] = {} # Open piece type, index of word start and end that opended
     for word_count, line_piece in enumerate(current_line_content_list):
         for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
             seq_found: bool = True
             while seq_found:
                 seq_found = (found_pattern := re.search(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)) is not None
 
-                if found_pattern: 
-                    line_piece = line_piece[:found_pattern.start()] + line_piece[found_pattern.end():]
+                if found_pattern and current_styling_pattern in unfinished_styling_pieces.keys(): 
+                    # Delete both styling sequences
+                    line_piece = delete_indexes_from_word(line_piece, 
+                        (found_pattern.start(), found_pattern.end()
+                    ))
                     current_line_content_list[word_count] = line_piece
+                    current_line.append_styling_piece(
+                        piece_type=current_styling_pattern,
+                        start_index=(unfinished_styling_pieces[current_styling_pattern][0], unfinished_styling_pieces[current_styling_pattern][1]), # Start of styling piece (from unfinisched styling pieces)
+                        end_index=(word_count, int(found_pattern.start() -1)) # End index (current piece discovered)
+                    )
+                    # Delete added styling pattern (because it was closed)
+                    unfinished_styling_pieces.pop(current_styling_pattern)
 
-                    if not (open_styling := current_line.open_specific_styling(style_type=current_styling_pattern)):
-                        current_line.append_styling_piece(
-                            piece_type=current_styling_pattern,
-                            start_index=(word_count, int(found_pattern.start())),
-                            end_index=None
-                        )
-                    elif isinstance(open_styling, piece): open_styling.end_index = (word_count, int(found_pattern.start() - 1))
+                elif found_pattern: 
+                    unfinished_styling_pieces[current_styling_pattern] = (word_count, found_pattern.start(), found_pattern.end())
+                    line_piece = delete_indexes_from_word(line_piece, 
+                        (found_pattern.start(), found_pattern.end()
+                    ))
+
+                else: seq_found = False
 
     current_line.content = " ".join(current_line_content_list)
 
@@ -138,4 +139,4 @@ def parse(markdown_article_path: str) -> list[line] | None:
 
 if __name__ == "__main__":
     #parse("./test2.md")
-    construct_line("Tests are ~~not~~ ==important==")
+    construct_line("**Test**")
