@@ -4,13 +4,13 @@ class piece_types(Enum):
     piece_types defines the global and specific types of applied styling
     """
 
-    TITLE1 = "title1"
-    TITLE2 = "title2"
-    TITLE3 = "title3"
+    TITLE = "title"
+    BLOCKQUOTE = "blockquote"
     BULLET = "bullet"
+    HORIZONTAL_RULES = "horizontal rules"
+
     BOLD = "bold"
     ITALIC = "italic"
-    BLOCKQUOTE = "blockquote"
     STRIKETHROUGH = "strikethrough"
     HIGHLIGHT = "highlight"
 
@@ -33,16 +33,16 @@ class data_types(Enum):
 
     URL = "url"
     LINKTO = "linkto"
+    TITLE_SIZE = "title size"
 
 
 "Regex identification codes for all piece types"
 piece_seqences = {
     styling_types.GLOBAL: {
         piece_types.BLOCKQUOTE: r"^>.*",
-        piece_types.TITLE1: r"^[#]{1}$",
-        piece_types.TITLE2: r"^[#]{2}$",
-        piece_types.TITLE3: r"^[#]{3}$",
+        piece_types.TITLE: r"^[#]{1,6}$",
         piece_types.BULLET: r"^-",
+        piece_types.HORIZONTAL_RULES: r"^\s*\*\*\*\s*$"
     },
     styling_types.SPECIFIC: {
         piece_types.BOLD: r"[\*]{2}",

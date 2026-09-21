@@ -1,7 +1,7 @@
 import unittest
 from typing import Tuple, Union
 from thebrainrot_blog.markdown_handler.parse_markdown import parse, construct_line, line
-from thebrainrot_blog.markdown_handler.piece_types import piece_types, styling_types
+from thebrainrot_blog.markdown_handler.piece_types import piece_types, styling_types, data_types
 
 class ParserTester(unittest.TestCase):
     def shortDescription(self):
@@ -22,13 +22,15 @@ class ParserTester(unittest.TestCase):
         # input_content, output_content : expected detected global piece types (in order)
         styling_tests: dict[Tuple[str, str], list[piece_types]] = {
             ("- Test", "Test"): [piece_types.BULLET],
-            ("# Test", "Test"): [piece_types.TITLE1],
-            ("# > - Test", "> - Test"): [piece_types.TITLE1],
-            ("> ## > - Test", "> - Test"): [piece_types.BLOCKQUOTE, piece_types.TITLE2],
-            ("- ### > - Test", "> - Test"): [piece_types.BULLET, piece_types.TITLE3],
-            ("- ### Test", "Test"): [piece_types.BULLET, piece_types.TITLE3],
-            ("> # Test", "Test"): [ piece_types.BLOCKQUOTE, piece_types.TITLE1],
-            (">> - ## Test", "Test"): [piece_types.BLOCKQUOTE, piece_types.BLOCKQUOTE, piece_types.BULLET, piece_types.TITLE2]
+            ("# Test", "Test"): [piece_types.TITLE],
+            ("# > - Test", "> - Test"): [piece_types.TITLE],
+            ("> ## > - Test", "> - Test"): [piece_types.BLOCKQUOTE, piece_types.TITLE],
+            ("- ### > - Test", "> - Test"): [piece_types.BULLET, piece_types.TITLE],
+            ("- ### Test", "Test"): [piece_types.BULLET, piece_types.TITLE],
+            ("#### -Test", "-Test"): [piece_types.TITLE],
+            ("> # Test", "Test"): [ piece_types.BLOCKQUOTE, piece_types.TITLE],
+            (">> - ## Test", "Test"): [piece_types.BLOCKQUOTE, piece_types.BLOCKQUOTE, piece_types.BULLET, piece_types.TITLE],
+            ("*** ", ""): [piece_types.HORIZONTAL_RULES]
         }
 
         for content, expected_styling_pieces in styling_tests.items():
@@ -89,6 +91,31 @@ class ParserTester(unittest.TestCase):
                 self.assertEqual(expected_pieces[i]["start_index"], styling_piece.start_index, "Specific styling start_index mismatch")
                 self.assertEqual(expected_pieces[i]["end_index"], styling_piece.end_index, "Specific styling end_index mismatch")
 
+    #! Currently only for title pieces, later also for images, links etc. 
+    def test_piece_data(self):
+        """
+        Tests if the parser correctly identifies and saves piece data correctly
+        """
+
+        # (Content, type of used styling for test, styling type), data for detected style
+        test_cases: dict[Tuple[str, styling_types, piece_types], dict[data_types, Union[piece_types, str]]] = {
+            ("# Test", styling_types.GLOBAL, piece_types.TITLE): {
+                data_types.TITLE_SIZE: "1"
+            },
+            ("### Test Case here", styling_types.GLOBAL, piece_types.TITLE): {
+                data_types.TITLE_SIZE: "3"
+            },
+            ("###### Test Case here", styling_types.GLOBAL, piece_types.TITLE): {
+                data_types.TITLE_SIZE: "6"
+            }
+        }
+
+        for test, expected in test_cases.items():
+            out = construct_line(line_content=test[0]).styling[test[1]][0]
+
+            self.assertEqual(out.style_type, test[2], "Styling type mismatch between output and expected")
+            self.assertEqual(out.data, expected, "Data mismatch between output and expected")
+
     def test_appending_style(self):
         """
         Tests if the parser appends specific and global styling types correctly into each 
@@ -99,7 +126,7 @@ class ParserTester(unittest.TestCase):
         appending_tests: list[Tuple[piece_types, styling_types, Tuple[int, int], Tuple[int, int]]] = [
             (piece_types.BOLD, styling_types.SPECIFIC, (1, 4), (4, 2)),
             (piece_types.ITALIC, styling_types.SPECIFIC, (3,2), (5,3)),
-            (piece_types.TITLE1, styling_types.GLOBAL, (2,4), (2,3))
+            (piece_types.TITLE, styling_types.GLOBAL, (2,4), (2,3))
         ]
 
         for params in appending_tests:
