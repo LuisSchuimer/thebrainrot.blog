@@ -57,7 +57,19 @@ class ParserTester(unittest.TestCase):
                     "end_index": (1,1)
                 },
             ],
-            ("Tests are very **important** for *software*", "Tests are very important for software"): [
+            ("**ToDo List**", "ToDo List"): [
+                {
+                    "styling_piece": piece_types.BOLD,
+                    "start_index": (0,0),
+                    "end_index": (1,3)
+                }
+            ],
+            ("**Tests** are very **important** for *software*", "Tests are very important for software"): [
+                {
+                    "styling_piece": piece_types.BOLD,
+                    "start_index": (0,0),
+                    "end_index": (0,4)
+                },
                 {
                     "styling_piece": piece_types.BOLD,
                     "start_index": (3,0),
@@ -86,6 +98,7 @@ class ParserTester(unittest.TestCase):
         for content, expected_pieces in styling_tests.items():
             out = construct_line(line_content=content[0])
 
+            self.assertEqual(out.content, content[1], "Content mismatch between out and expected")
             for i, styling_piece in enumerate(out.styling[styling_types.SPECIFIC]):
                 self.assertEqual(expected_pieces[i]["styling_piece"], styling_piece.style_type, "Specific styling type mismatch")
                 self.assertEqual(expected_pieces[i]["start_index"], styling_piece.start_index, "Specific styling start_index mismatch")

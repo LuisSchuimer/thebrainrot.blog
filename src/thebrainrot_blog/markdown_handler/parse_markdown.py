@@ -1,4 +1,4 @@
-"Markdown to HTML parser as part of thebrainrot.blog by Luis Schuimer"
+"Markdown to HTML parser as part of thebrainrot.blog written by Luis Schuimer"
 
 from os import path
 import re
@@ -71,7 +71,7 @@ def construct_line(line_content: str) -> line:
     def delete_indexes_from_word(word: str, *indexes: Tuple[int,int]) -> str:
         for index in indexes: word = word[:index[0]] + word[index[1]:]
         return word
-    
+
     current_line: line = line()
 
     current_line_content_list: list[str] = line_content.split()
@@ -98,7 +98,7 @@ def construct_line(line_content: str) -> line:
         if not seq_valid: break
 
     # Specific styling detection
-    unfinished_styling_pieces: dict[piece_types, Tuple[int,int,int]] = {} # Open piece type, index of word start and end that opended
+    unfinished_styling_pieces: dict[piece_types, Tuple[int,int,int,str]] = {} # Open piece type, index of word start and end that opended
     for word_count, line_piece in enumerate(current_line_content_list):
         for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
             seq_found: bool = True
@@ -110,7 +110,10 @@ def construct_line(line_content: str) -> line:
                     line_piece = delete_indexes_from_word(line_piece, 
                         (found_pattern.start(), found_pattern.end()
                     ))
+
                     current_line_content_list[word_count] = line_piece
+                    if (start_word := unfinished_styling_pieces[current_styling_pattern][0]) is not word_count: current_line_content_list[start_word] = unfinished_styling_pieces[current_styling_pattern][3]
+
                     current_line.append_styling_piece(
                         piece_type=current_styling_pattern,
                         start_index=(unfinished_styling_pieces[current_styling_pattern][0], unfinished_styling_pieces[current_styling_pattern][1]), # Start of styling piece (from unfinisched styling pieces)
@@ -119,11 +122,11 @@ def construct_line(line_content: str) -> line:
                     # Delete added styling pattern (because it was closed)
                     unfinished_styling_pieces.pop(current_styling_pattern)
 
-                elif found_pattern: 
-                    unfinished_styling_pieces[current_styling_pattern] = (word_count, found_pattern.start(), found_pattern.end())
+                elif found_pattern:
                     line_piece = delete_indexes_from_word(line_piece, 
                         (found_pattern.start(), found_pattern.end()
                     ))
+                    unfinished_styling_pieces[current_styling_pattern] = (word_count, found_pattern.start(), found_pattern.end(), line_piece)
 
                 else: seq_found = False
 
@@ -134,15 +137,12 @@ def construct_line(line_content: str) -> line:
 def parse(markdown_article_path: str) -> list[line] | None:
     if not path.isfile(markdown_article_path): return None
 
-    output: list[line] = []
     with open(markdown_article_path, encoding="utf8", mode="r") as article_file:
         article: list[str] = [line_content.strip() for line_content in article_file]
 
-    for line_content in article:
-        output.append(construct_line(line_content))
-
-    return output
+    return [construct_line(content) for content in article]
 
 if __name__ == "__main__":
-    #parse("./test2.md")
-    construct_line("#### -Test")
+    out = parse("./README.md")
+    print(out)
+    #print(construct_line("**ToDo List**"))
