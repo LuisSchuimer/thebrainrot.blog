@@ -1,7 +1,16 @@
 import unittest
 from typing import Tuple, Union
-from thebrainrot_blog.markdown_handler.parse_markdown import parse, construct_line, line
-from thebrainrot_blog.markdown_handler.piece_types import piece_types, styling_types, data_types
+from thebrainrot_blog.markdown_handler.parse_markdown import (
+    parse, 
+    construct_line, 
+    line, 
+    piece
+)
+from thebrainrot_blog.markdown_handler.piece_types import (
+    piece_types, 
+    styling_types, 
+    data_types
+)
 
 class ParserTester(unittest.TestCase):
     def shortDescription(self):
@@ -42,6 +51,7 @@ class ParserTester(unittest.TestCase):
                 self.assertEqual(out_styling[i], styling_piece, "Global styling type mismatch between expected and output")
             self.assertIs(len(out_styling), len(styling_tests[content]), "Number of global styling mismatch between expected and output")
 
+    #! UPDADE INDEXES CORRECTLY
     def test_specific_styling(self):
         """
         Test the detection of specific styling types and deletion of required 
@@ -53,15 +63,13 @@ class ParserTester(unittest.TestCase):
             ("**This is** a test", "This is a test"): [
                 {
                     "styling_piece": piece_types.BOLD,
-                    "start_index": (0,0),
-                    "end_index": (1,1)
+                    "index": (0,7)
                 },
             ],
             ("**ToDo List**", "ToDo List"): [
                 {
                     "styling_piece": piece_types.BOLD,
-                    "start_index": (0,0),
-                    "end_index": (1,3)
+                    "index": (0,8)
                 }
             ],
             ("**Tests** are very **important** for *software*", "Tests are very important for software"): [
@@ -101,8 +109,7 @@ class ParserTester(unittest.TestCase):
             self.assertEqual(out.content, content[1], "Content mismatch between out and expected")
             for i, styling_piece in enumerate(out.styling[styling_types.SPECIFIC]):
                 self.assertEqual(expected_pieces[i]["styling_piece"], styling_piece.style_type, "Specific styling type mismatch")
-                self.assertEqual(expected_pieces[i]["start_index"], styling_piece.start_index, "Specific styling start_index mismatch")
-                self.assertEqual(expected_pieces[i]["end_index"], styling_piece.end_index, "Specific styling end_index mismatch")
+                self.assertEqual(expected_pieces[i]["index"], styling_piece.index, "Specific styling start_index mismatch")
 
     #! Currently only for title pieces, later also for images, links etc. 
     def test_piece_data(self):
@@ -136,27 +143,25 @@ class ParserTester(unittest.TestCase):
         """
 
         # Piece type, styling_type, start index, end_index
-        appending_tests: list[Tuple[piece_types, styling_types, Tuple[int, int], Tuple[int, int]]] = [
-            (piece_types.BOLD, styling_types.SPECIFIC, (1, 4), (4, 2)),
-            (piece_types.ITALIC, styling_types.SPECIFIC, (3,2), (5,3)),
-            (piece_types.TITLE, styling_types.GLOBAL, (2,4), (2,3))
+        appending_tests: list[Tuple[piece_types, styling_types, Tuple[int, int]]] = [
+            (piece_types.BOLD, styling_types.SPECIFIC, (1, 4)),
+            (piece_types.ITALIC, styling_types.SPECIFIC, (3,2)),
+            (piece_types.TITLE, styling_types.GLOBAL, (2,4))
         ]
 
         for params in appending_tests:
             out = line()
             self.assertEqual(out.append_styling_piece(
                 piece_type=params[0],
-                start_index=params[2],
-                end_index=params[3]
+                index=params[2],
             ), True, "Operation of appending specific style on line failed")
             if params[1] is styling_types.GLOBAL: self.assertEqual(out.styling[styling_types.GLOBAL][0].style_type, params[0], "Styling not apppended to GLOBAL")
             elif params[1] is styling_types.SPECIFIC:
                 styling_obj = out.styling[styling_types.SPECIFIC][0]
                 self.assertEqual(styling_obj.style_type, params[0], "Styling not appended to SPECIFIC")
-                self.assertEqual(styling_obj.start_index, params[2], "Styling start index mismatch")
-                self.assertEqual(styling_obj.end_index, params[3], "Styling end index mismatch")
+                self.assertEqual(styling_obj.index, params[2], "Styling start index mismatch")
 
-    def test_left_opened_styling(self):
+    def left_opened_styling(self):
         """
         Test that the program keeps a styling sequence in the content as long as
         it has not been closed yet
@@ -170,3 +175,29 @@ class ParserTester(unittest.TestCase):
         ]
 
         for test in tests: self.assertEqual(construct_line(test[0]).content, test[1])
+
+    def test_updated_indexes(self):
+        """
+        Test if the function for deleting indexes from lines content
+        is correctly updating the indexes of existing styling pieces
+        """
+
+        # Test text, indexes to be deleted (2 items a start and end value), potential styling indexes, expected change through deletion
+        test_cases: dict[Tuple[str, Tuple[Tuple[int, int], Tuple[int,int]]], list[Tuple[Tuple[int,int], Tuple[int,int]]]] = {
+            ("**Test*are*hot**yeaa", ((0,2), (13,15))): [((7,9), (5,7)), ((10,12), (8,10)), ((16,18), (12,14))],
+            ("**I love tests**", ((0,2), (11,13))): [((2,10), (0,8))]
+        }
+
+        for test_params, expected in test_cases.items():
+            out = line(test_params[0])
+            for params in expected:
+                out.styling[styling_types.SPECIFIC].append(piece(
+                    style_type=piece_types.BOLD,
+                    index=params[0]
+                ))
+            out.delete_indexes_from_content(
+                (test_params[1][0], test_params[1][1])
+            )
+
+            for count, params in enumerate(expected):
+                self.assertEqual(out.styling[styling_types.SPECIFIC][count].index, params[1])

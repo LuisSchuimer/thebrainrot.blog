@@ -14,13 +14,11 @@ from thebrainrot_blog.markdown_handler.piece_types import (
 class piece:
     def __init__(self,
         style_type: piece_types,
-        start_index: Union[Tuple[int, int], None] = None,
-        end_index: Union[Tuple[int, int], None] = None,
+        index: Union[Tuple[int, int], None] = None,
         data: dict[data_types, str] = {}
     ):
         self.style_type: piece_types = style_type
-        self.start_index: Union[Tuple[int, int], None] = start_index
-        self.end_index: Union[Tuple[int, int], None] = end_index
+        self.index: Union[Tuple[int, int], None] = index
         self.data: dict[data_types, str] = data
 
     def append_data_to_piece(self, data_type: data_types, value: str) -> None: self.data[data_type] = value
@@ -34,21 +32,32 @@ class line:
             styling_types.SPECIFIC: [],
         }
 
+    def delete_indexes_from_content(self, indexes: Tuple[Tuple[int,int], Tuple[int,int]]) -> None:
+        if indexes[0][1] < indexes[1][0]:
+            offset = indexes[0][1] - indexes[0][0]
+            indexes = (indexes[0], (indexes[1][0] - offset, indexes[1][1] - offset))
+        for index in indexes: 
+            for styling_type in self.styling[styling_types.SPECIFIC]:
+                if styling_type.index is None: continue
+
+                offset = index[1] - index[0]
+                if index[1] <= styling_type.index[0]: styling_type.index = (styling_type.index[0] - offset, styling_type.index[1] - offset)
+
+            self.content = self.content[:index[0]] + self.content[index[1]:]
+
     def append_styling_piece(self, 
             piece_type: piece_types, 
-            start_index: Union[Tuple[int, int], None] = None, 
-            end_index: Union[Tuple[int, int], None] = None, 
+            index: Union[Tuple[int, int], None] = None, 
             data: dict[data_types, str] = {}) -> bool:
         
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type, data=data))
             return True
         else:
-            if start_index is not None and end_index is not None:
+            if index is not None:
                 self.styling[styling_types.SPECIFIC].append(piece(
                     style_type=piece_type,
-                    start_index=start_index,
-                    end_index=end_index,
+                    index=index,
                     data=data
                 ))
                 return True
@@ -68,10 +77,6 @@ class line:
         return []
 
 def construct_line(line_content: str) -> line:
-    def delete_indexes_from_word(word: str, *indexes: Tuple[int,int]) -> str:
-        for index in indexes: word = word[:index[0]] + word[index[1]:]
-        return word
-
     current_line: line = line()
 
     current_line_content_list: list[str] = line_content.split()
@@ -96,6 +101,27 @@ def construct_line(line_content: str) -> line:
 
         # If no valid pattern found: stop searching global styling
         if not seq_valid: break
+
+    current_line.content = " ".join(current_line_content_list)
+
+    for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
+        matches: list[re.Match[str]] = [match for match in re.finditer(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], current_line.content)]
+
+        for group in [(matches[i-1], matches[i]) for i in range(1, len(matches), 2)]:
+            print(group)
+
+            current_line.append_styling_piece(
+                piece_type=current_styling_pattern,
+                index=(group[0].end(), group[1].start()-1)
+            )
+
+            current_line.delete_indexes_from_content((
+                (group[0].start(), group[0].end()), 
+                (group[1].start(), group[1].end())
+                )
+            )
+
+    return current_line
 
     # Specific styling detection
     unfinished_styling_pieces: dict[piece_types, Tuple[int,int,int,str]] = {} # Open piece type, index of word start and end that opended
@@ -143,6 +169,8 @@ def parse(markdown_article_path: str) -> list[line] | None:
     return [construct_line(content) for content in article]
 
 if __name__ == "__main__":
-    out = parse("./README.md")
-    print(out)
-    #print(construct_line("**ToDo List**"))
+    #out = parse("./README.md")
+    #print(out)
+    out = construct_line("**Tests** are very **important** for *software*")
+    print(out.content)
+    print([styling.index for styling in out.styling[styling_types.SPECIFIC]])

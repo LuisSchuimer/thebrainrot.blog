@@ -16,4 +16,5 @@
   - [ ] Links inside document
 - Implement more options for styling
   - [ ] Title ids
-- Rethink the **specific styling detection system** for code reduction
+- Rethink the **specific styling detection system** for code reduction (*partly done*)
+- Add a way to change **indexes of found styling patterns** to still be correct
