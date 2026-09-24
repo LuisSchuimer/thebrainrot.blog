@@ -51,7 +51,6 @@ class ParserTester(unittest.TestCase):
                 self.assertEqual(out_styling[i], styling_piece, "Global styling type mismatch between expected and output")
             self.assertIs(len(out_styling), len(styling_tests[content]), "Number of global styling mismatch between expected and output")
 
-    #! UPDADE INDEXES CORRECTLY
     def test_specific_styling(self):
         """
         Test the detection of specific styling types and deletion of required 
@@ -63,7 +62,7 @@ class ParserTester(unittest.TestCase):
             ("**This is** a test", "This is a test"): [
                 {
                     "styling_piece": piece_types.BOLD,
-                    "index": (0,7)
+                    "index": (0,6)
                 },
             ],
             ("**ToDo List**", "ToDo List"): [
@@ -75,30 +74,25 @@ class ParserTester(unittest.TestCase):
             ("**Tests** are very **important** for *software*", "Tests are very important for software"): [
                 {
                     "styling_piece": piece_types.BOLD,
-                    "start_index": (0,0),
-                    "end_index": (0,4)
+                    "index": (0,4),
                 },
                 {
                     "styling_piece": piece_types.BOLD,
-                    "start_index": (3,0),
-                    "end_index": (3,8)
+                    "index": (15,23)
                 },
                 {
                     "styling_piece": piece_types.ITALIC,
-                    "start_index": (5,0),
-                    "end_index": (5,7)
+                    "index": (29,36)
                 }
             ],
             ("Tests are ~~not~~ ==important==", "Tests are not important"): [
                 {
                     "styling_piece": piece_types.STRIKETHROUGH,
-                    "start_index": (2,0),
-                    "end_index": (2,2)
+                    "index": (10,12)
                 },
                 {
                     "styling_piece": piece_types.HIGHLIGHT,
-                    "start_index": (3,0),
-                    "end_index": (3,8)
+                    "index": (14,22)
                 }
             ]
         }
@@ -109,7 +103,7 @@ class ParserTester(unittest.TestCase):
             self.assertEqual(out.content, content[1], "Content mismatch between out and expected")
             for i, styling_piece in enumerate(out.styling[styling_types.SPECIFIC]):
                 self.assertEqual(expected_pieces[i]["styling_piece"], styling_piece.style_type, "Specific styling type mismatch")
-                self.assertEqual(expected_pieces[i]["index"], styling_piece.index, "Specific styling start_index mismatch")
+                self.assertEqual(expected_pieces[i]["index"], styling_piece.index, "Specific styling index mismatch")
 
     #! Currently only for title pieces, later also for images, links etc. 
     def test_piece_data(self):
@@ -159,7 +153,7 @@ class ParserTester(unittest.TestCase):
             elif params[1] is styling_types.SPECIFIC:
                 styling_obj = out.styling[styling_types.SPECIFIC][0]
                 self.assertEqual(styling_obj.style_type, params[0], "Styling not appended to SPECIFIC")
-                self.assertEqual(styling_obj.index, params[2], "Styling start index mismatch")
+                self.assertEqual(styling_obj.index, params[2], "Styling sindex mismatch")
 
     def left_opened_styling(self):
         """
@@ -184,8 +178,8 @@ class ParserTester(unittest.TestCase):
 
         # Test text, indexes to be deleted (2 items a start and end value), potential styling indexes, expected change through deletion
         test_cases: dict[Tuple[str, Tuple[Tuple[int, int], Tuple[int,int]]], list[Tuple[Tuple[int,int], Tuple[int,int]]]] = {
-            ("**Test*are*hot**yeaa", ((0,2), (13,15))): [((7,9), (5,7)), ((10,12), (8,10)), ((16,18), (12,14))],
-            ("**I love tests**", ((0,2), (11,13))): [((2,10), (0,8))]
+            ("**Test*are*hot**yeaa", ((0,2), (15,17))): [((7,9), (5,7)), ((10,12), (8,10))],
+            ("**I love tests**", ((0,2), (11,13))): [((3,11), (1,9))]
         }
 
         for test_params, expected in test_cases.items():

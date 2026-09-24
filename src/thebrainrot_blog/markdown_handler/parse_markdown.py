@@ -10,6 +10,7 @@ from thebrainrot_blog.markdown_handler.piece_types import (
     styling_types,
     data_types
 )
+from thebrainrot_blog.utils import index_offset
 
 class piece:
     def __init__(self,
@@ -33,15 +34,10 @@ class line:
         }
 
     def delete_indexes_from_content(self, indexes: Tuple[Tuple[int,int], Tuple[int,int]]) -> None:
-        if indexes[0][1] < indexes[1][0]:
-            offset = indexes[0][1] - indexes[0][0]
-            indexes = (indexes[0], (indexes[1][0] - offset, indexes[1][1] - offset))
         for index in indexes: 
             for styling_type in self.styling[styling_types.SPECIFIC]:
                 if styling_type.index is None: continue
-
-                offset = index[1] - index[0]
-                if index[1] <= styling_type.index[0]: styling_type.index = (styling_type.index[0] - offset, styling_type.index[1] - offset)
+                styling_type.index = index_offset(styling_type.index, indexes_to_be_removed=[index])
 
             self.content = self.content[:index[0]] + self.content[index[1]:]
 
@@ -104,59 +100,27 @@ def construct_line(line_content: str) -> line:
 
     current_line.content = " ".join(current_line_content_list)
 
+    # Specific styling detection
     for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
         matches: list[re.Match[str]] = [match for match in re.finditer(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], current_line.content)]
 
+        prev_seq: list[Tuple[int, int]] = []
         for group in [(matches[i-1], matches[i]) for i in range(1, len(matches), 2)]:
-            print(group)
+            prev_seq.append(index_offset((group[0].start(), group[0].end()), indexes_to_be_removed=prev_seq))
+            prev_seq.append(index_offset((group[1].start(), group[1].end()), indexes_to_be_removed=prev_seq))
+
+            group_indexes: Tuple[Tuple[int,int], Tuple[int,int]] = (prev_seq[-2], prev_seq[-1])
 
             current_line.append_styling_piece(
                 piece_type=current_styling_pattern,
-                index=(group[0].end(), group[1].start()-1)
+                index=(group_indexes[0][0], group_indexes[1][0] -1)
             )
 
             current_line.delete_indexes_from_content((
-                (group[0].start(), group[0].end()), 
-                (group[1].start(), group[1].end())
+                ((group_indexes[0][0], group_indexes[0][1])), 
+                (group_indexes[1][0], group_indexes[1][1])
                 )
             )
-
-    return current_line
-
-    # Specific styling detection
-    unfinished_styling_pieces: dict[piece_types, Tuple[int,int,int,str]] = {} # Open piece type, index of word start and end that opended
-    for word_count, line_piece in enumerate(current_line_content_list):
-        for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
-            seq_found: bool = True
-            while seq_found:
-                seq_found = (found_pattern := re.search(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], line_piece)) is not None
-
-                if found_pattern and current_styling_pattern in unfinished_styling_pieces.keys(): 
-                    # Delete both styling sequences
-                    line_piece = delete_indexes_from_word(line_piece, 
-                        (found_pattern.start(), found_pattern.end()
-                    ))
-
-                    current_line_content_list[word_count] = line_piece
-                    if (start_word := unfinished_styling_pieces[current_styling_pattern][0]) is not word_count: current_line_content_list[start_word] = unfinished_styling_pieces[current_styling_pattern][3]
-
-                    current_line.append_styling_piece(
-                        piece_type=current_styling_pattern,
-                        start_index=(unfinished_styling_pieces[current_styling_pattern][0], unfinished_styling_pieces[current_styling_pattern][1]), # Start of styling piece (from unfinisched styling pieces)
-                        end_index=(word_count, int(found_pattern.start() -1)) # End index (current piece discovered)
-                    )
-                    # Delete added styling pattern (because it was closed)
-                    unfinished_styling_pieces.pop(current_styling_pattern)
-
-                elif found_pattern:
-                    line_piece = delete_indexes_from_word(line_piece, 
-                        (found_pattern.start(), found_pattern.end()
-                    ))
-                    unfinished_styling_pieces[current_styling_pattern] = (word_count, found_pattern.start(), found_pattern.end(), line_piece)
-
-                else: seq_found = False
-
-    current_line.content = " ".join(current_line_content_list)
 
     return current_line
 
@@ -171,6 +135,6 @@ def parse(markdown_article_path: str) -> list[line] | None:
 if __name__ == "__main__":
     #out = parse("./README.md")
     #print(out)
-    out = construct_line("**Tests** are very **important** for *software*")
+    out = construct_line("**This is** a test")
     print(out.content)
     print([styling.index for styling in out.styling[styling_types.SPECIFIC]])
