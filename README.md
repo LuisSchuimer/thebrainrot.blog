@@ -1,8 +1,8 @@
 # The Brainrot Blog
 ## Parser
 **ToDo List**
-- ~~Write tests for **specific styling recogniton**~~
-- **Write function to relyably detect index changes** in styling and change them based on deleted content f.e. specific styling patterns
+- [x] ~~Write tests for **specific styling recogniton**~~
+- [x] ~~**Write function to relyably detect index changes** in styling and change them based on deleted content f.e. specific styling patterns~~
   - *Is such a function even nessersary?*
 - Implement more specific styling patterns
   - [x] Highlight (==)
@@ -16,5 +16,5 @@
   - [ ] Links inside document
 - Implement more options for styling
   - [ ] Title ids
-- Rethink the **specific styling detection system** for code reduction (*partly done*)
-- Add a way to change **indexes of found styling patterns** to still be correct
+- [x] ~~Rethink the **specific styling detection system** for code reduction~~
+- [x] ~~Add a way to change **indexes of found styling patterns** to still be correct~~
