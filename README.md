@@ -11,10 +11,12 @@
   - [ ] Multi Bullet point 
   - [ ] Images
   - [ ] Task lists
-  - [ ] URLS (href)
+  - [x] URLS
+  - [ ] Hrefs
   - [x] Title sizes from 4-6
   - [ ] Links inside document
 - Implement more options for styling
   - [ ] Title ids
 - [x] ~~Rethink the **specific styling detection system** for code reduction~~
 - [x] ~~Add a way to change **indexes of found styling patterns** to still be correct~~
+- Implement regex groups for better detection for images and links

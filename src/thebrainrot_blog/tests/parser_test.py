@@ -94,6 +94,16 @@ class ParserTester(unittest.TestCase):
                     "styling_piece": piece_types.HIGHLIGHT,
                     "index": (14,22)
                 }
+            ],
+            ("**hello from** https://google.com", "hello from https://google.com"): [
+                {
+                    "styling_piece": piece_types.BOLD,
+                    "index": (0,9)
+                },
+                {
+                    "styling_piece": piece_types.URL,
+                    "index": (11,28)
+                }
             ]
         }
 

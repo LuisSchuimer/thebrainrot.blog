@@ -13,6 +13,7 @@ class piece_types(Enum):
     ITALIC = "italic"
     STRIKETHROUGH = "strikethrough"
     HIGHLIGHT = "highlight"
+    URL = "url"
 
 class styling_types(Enum):
     """
@@ -48,6 +49,7 @@ piece_seqences = {
         piece_types.BOLD: r"[\*]{2}",
         piece_types.ITALIC: r"(?<!\*)\*(?!\*)",
         piece_types.STRIKETHROUGH: r"[~]{2}",
-        piece_types.HIGHLIGHT: r"[=]{2}"
+        piece_types.HIGHLIGHT: r"[=]{2}",
+        piece_types.URL: r"(https)?:\/\/?[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/?"
     }
 }
