@@ -33,7 +33,7 @@ class line:
             styling_types.SPECIFIC: [],
         }
 
-    def delete_indexes_from_content(self, indexes: Tuple[Tuple[int,int], Tuple[int,int]]) -> None:
+    def delete_indexes_from_content(self, *indexes: Tuple[int,int]) -> None:
         for index in indexes: 
             for styling_type in self.styling[styling_types.SPECIFIC]:
                 if styling_type.index is None: continue
@@ -105,12 +105,26 @@ def construct_line(line_content: str) -> line:
         matches: list[re.Match[str]] = [match for match in re.finditer(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], current_line.content)]
 
         match current_styling_pattern:
+            # If url type seen continue with only adding a styling type to it
             case piece_types.URL:
                 for match in matches:
                     current_line.append_styling_piece(
                         piece_type=current_styling_pattern,
                         index=(match.start(), match.end()-1)
                     )
+                continue
+
+            # If title id (like {#test}) is seen continue with this
+            case piece_types.TITLE_ID:
+                if not matches: continue
+
+                for styling_type in current_line.styling[styling_types.GLOBAL]:
+                    if styling_type.style_type is piece_types.TITLE: 
+                        styling_type.append_data_to_piece(data_type=data_types.TITLE_ID, value=matches[0].group(1))
+
+                        current_line.delete_indexes_from_content(
+                            (matches[0].start(), matches[0].end()), 
+                        )
 
             case _:
                 prev_seq: list[Tuple[int, int]] = []
@@ -125,10 +139,9 @@ def construct_line(line_content: str) -> line:
                         index=(group_indexes[0][0], group_indexes[1][0] -1)
                     )
 
-                    current_line.delete_indexes_from_content((
-                        ((group_indexes[0][0], group_indexes[0][1])), 
+                    current_line.delete_indexes_from_content(
+                        (group_indexes[0][0], group_indexes[0][1]), 
                         (group_indexes[1][0], group_indexes[1][1])
-                        )
                     )
 
     return current_line
@@ -144,6 +157,6 @@ def parse(markdown_article_path: str) -> list[line] | None:
 if __name__ == "__main__":
     #out = parse("./README.md")
     #print(out)
-    out = construct_line("**hello from** https://google.com")
+    out = construct_line('> Match {#test1}')
     print(out.content)
-    print([styling.index for styling in out.styling[styling_types.SPECIFIC]])
+    print([styling.data for styling in out.styling[styling_types.SPECIFIC]])

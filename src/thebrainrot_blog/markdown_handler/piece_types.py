@@ -14,6 +14,7 @@ class piece_types(Enum):
     STRIKETHROUGH = "strikethrough"
     HIGHLIGHT = "highlight"
     URL = "url"
+    TITLE_ID = "title id"
 
 class styling_types(Enum):
     """
@@ -35,6 +36,7 @@ class data_types(Enum):
     URL = "url"
     LINKTO = "linkto"
     TITLE_SIZE = "title size"
+    TITLE_ID = "title_id"
 
 
 "Regex identification codes for all piece types"
@@ -47,6 +49,7 @@ piece_seqences = {
     },
     styling_types.SPECIFIC: {
         piece_types.BOLD: r"[\*]{2}",
+        piece_types.TITLE_ID: r"{(#[a-zA-Z0-9_]+)}",
         piece_types.ITALIC: r"(?<!\*)\*(?!\*)",
         piece_types.STRIKETHROUGH: r"[~]{2}",
         piece_types.HIGHLIGHT: r"[=]{2}",

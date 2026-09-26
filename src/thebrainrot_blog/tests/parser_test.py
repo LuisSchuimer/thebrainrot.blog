@@ -122,15 +122,30 @@ class ParserTester(unittest.TestCase):
         """
 
         # (Content, type of used styling for test, styling type), data for detected style
-        test_cases: dict[Tuple[str, styling_types, piece_types], dict[data_types, Union[piece_types, str]]] = {
+        test_cases: dict[Tuple[str, styling_types, piece_types], dict[data_types, Union[piece_types, str, None]]] = {
             ("# Test", styling_types.GLOBAL, piece_types.TITLE): {
-                data_types.TITLE_SIZE: "1"
+                data_types.TITLE_SIZE: "1",
+                data_types.TITLE_ID: None
             },
             ("### Test Case here", styling_types.GLOBAL, piece_types.TITLE): {
-                data_types.TITLE_SIZE: "3"
+                data_types.TITLE_SIZE: "3",
+                data_types.TITLE_ID: None
             },
             ("###### Test Case here", styling_types.GLOBAL, piece_types.TITLE): {
-                data_types.TITLE_SIZE: "6"
+                data_types.TITLE_SIZE: "6",
+                data_types.TITLE_ID: None
+            },
+            ('### Test {#testLink}', styling_types.GLOBAL, piece_types.TITLE): {
+                data_types.TITLE_SIZE: "3",
+                data_types.TITLE_ID: "#testLink"
+            },
+            ('#### Test {#this_is_my_2_link}', styling_types.GLOBAL, piece_types.TITLE): {
+                data_types.TITLE_SIZE: "4",
+                data_types.TITLE_ID: "#this_is_my_2_link"
+            },
+            ('## Test {Test}', styling_types.GLOBAL, piece_types.TITLE): {
+                data_types.TITLE_SIZE: "2",
+                data_types.TITLE_ID: None
             }
         }
 
@@ -138,7 +153,9 @@ class ParserTester(unittest.TestCase):
             out = construct_line(line_content=test[0]).styling[test[1]][0]
 
             self.assertEqual(out.style_type, test[2], "Styling type mismatch between output and expected")
-            self.assertEqual(out.data, expected, "Data mismatch between output and expected")
+            for data_type, data_value in expected.items():
+                if data_value is None: self.assertIs(data_type not in out.data.keys(), True)
+                else: self.assertEqual(out.data[data_type], expected[data_type], "Data mismatch between output and expected")
 
     def test_appending_style(self):
         """
@@ -200,7 +217,8 @@ class ParserTester(unittest.TestCase):
                     index=params[0]
                 ))
             out.delete_indexes_from_content(
-                (test_params[1][0], test_params[1][1])
+                test_params[1][0], 
+                test_params[1][1]
             )
 
             for count, params in enumerate(expected):
