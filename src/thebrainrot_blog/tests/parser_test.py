@@ -63,7 +63,7 @@ class ParserTester(unittest.TestCase):
                 {
                     "styling_piece": piece_types.BOLD,
                     "index": (0,6)
-                },
+                }
             ],
             ("**ToDo List**", "ToDo List"): [
                 {
@@ -104,6 +104,16 @@ class ParserTester(unittest.TestCase):
                     "styling_piece": piece_types.URL,
                     "index": (11,28)
                 }
+            ],
+            ("**hello from** [test link](https://google.com)", "hello from test link"): [
+                {
+                    "styling_piece": piece_types.BOLD,
+                    "index": (0,9)
+                },
+                {
+                    "styling_piece": piece_types.HREF,
+                    "index": (11,19)
+                }
             ]
         }
 
@@ -111,6 +121,7 @@ class ParserTester(unittest.TestCase):
             out = construct_line(line_content=content[0])
 
             self.assertEqual(out.content, content[1], "Content mismatch between out and expected")
+            self.assertIs(len(out.styling[styling_types.SPECIFIC]), len(expected_pieces), f"Number of styles mismatch")
             for i, styling_piece in enumerate(out.styling[styling_types.SPECIFIC]):
                 self.assertEqual(expected_pieces[i]["styling_piece"], styling_piece.style_type, "Specific styling type mismatch")
                 self.assertEqual(expected_pieces[i]["index"], styling_piece.index, "Specific styling index mismatch")
@@ -146,7 +157,11 @@ class ParserTester(unittest.TestCase):
             ('## Test {Test}', styling_types.GLOBAL, piece_types.TITLE): {
                 data_types.TITLE_SIZE: "2",
                 data_types.TITLE_ID: None
-            }
+            },
+            ("[test link here](https://google.com)", styling_types.SPECIFIC, piece_types.HREF): {
+                data_types.URL: "https://google.com",
+                data_types.LINKTO: None
+            },
         }
 
         for test, expected in test_cases.items():
@@ -197,6 +212,7 @@ class ParserTester(unittest.TestCase):
 
         for test in tests: self.assertEqual(construct_line(test[0]).content, test[1])
 
+    #! More tests here
     def test_updated_indexes(self):
         """
         Test if the function for deleting indexes from lines content

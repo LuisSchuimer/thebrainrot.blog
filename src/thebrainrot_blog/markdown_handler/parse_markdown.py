@@ -135,7 +135,7 @@ def construct_line(line_content: str) -> line:
 
                     current_line.append_styling_piece(
                         piece_type=piece_types.HREF,
-                        index=(match.start(2), match.end(2)),
+                        index=(match.start(2), match.end(2) -1),
                         data={data_types.URL: match.group(4)}
                     )
 
@@ -160,6 +160,7 @@ def construct_line(line_content: str) -> line:
                         prev_seq[-2], 
                         prev_seq[-1]
                     )
+                continue
 
     return current_line
 
@@ -174,20 +175,6 @@ def parse(markdown_article_path: str) -> list[line] | None:
 if __name__ == "__main__":
     #out = parse("./README.md")
     #print(out)
-    out = construct_line(input(">"))
-    print("---------")
+    out = construct_line("**hello from** [test link](https://google.com)")
     print(out.content)
-    print("---------")
-
-    print("Specific:")
-    for styling in out.styling[styling_types.SPECIFIC]:
-        print(styling.style_type)
-        print(styling.index)
-        print("")
-    print("Global:")
-
-    for styling in out.styling[styling_types.GLOBAL]:
-        print(styling.style_type)
-        print(styling.data)
-        print("")
-    print("---------")
+    print([styling.index for styling in out.styling[styling_types.SPECIFIC]])

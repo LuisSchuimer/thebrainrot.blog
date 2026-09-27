@@ -54,7 +54,7 @@ piece_seqences = {
         piece_types.ITALIC: r"(?<!\*)\*(?!\*)",
         piece_types.STRIKETHROUGH: r"[~]{2}",
         piece_types.HIGHLIGHT: r"[=]{2}",
-        piece_types.URL: r"(https)?:\/\/?[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/?",
+        piece_types.URL: r"(?<!\]\()https?:\/\/[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/?",
         piece_types.HREF: r"(\[)([a-zA-Z0-9\s.]+)(\]\((https?:\/\/?[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/?)?\))"
     }
 }

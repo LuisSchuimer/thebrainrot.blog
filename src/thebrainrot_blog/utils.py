@@ -7,7 +7,7 @@ def get_remote_ip_addr() -> str | None:
 
 def index_offset(to_be_offset: Tuple[int,int], indexes_to_be_removed: list[Tuple[int,int]]) -> Tuple[int,int]:
     for removed in indexes_to_be_removed:
-        if removed[1] < to_be_offset[0]:
+        if removed[1] <= to_be_offset[0]:
             offset = removed[1] - removed[0]
             to_be_offset = (to_be_offset[0] - offset, to_be_offset[1] - offset)
     return to_be_offset

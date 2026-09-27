@@ -12,7 +12,7 @@
   - [ ] Images
   - [ ] Task lists
   - [x] URLS
-  - [ ] Hrefs (partly done, still errors with index)
+  - [x] Hrefs 
   - [x] Title sizes from 4-6
   - [ ] Links inside document
 - Implement more options for styling
@@ -20,4 +20,4 @@
 - [x] ~~Rethink the **specific styling detection system** for code reduction~~
 - [x] ~~Add a way to change **indexes of found styling patterns** to still be correct~~
 - [ ] Implement regex groups for better detection for images and links (**Partly done**)
-- [ ] Better detection implementation for hrefs and regex for url
+- [ ] Better detection implementation for hrefs ~~and regex for url~~
