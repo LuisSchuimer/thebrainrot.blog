@@ -125,6 +125,25 @@ def construct_line(line_content: str) -> line:
                         current_line.delete_indexes_from_content(
                             (matches[0].start(), matches[0].end()), 
                         )
+                continue
+
+            case piece_types.HREF:
+                prev_seq: list[Tuple[int,int]] = []
+                for match in matches:
+                    prev_seq.append(index_offset((match.start(1), match.end(1)), indexes_to_be_removed=prev_seq))
+                    prev_seq.append(index_offset((match.start(3), match.end(3)), indexes_to_be_removed=prev_seq))
+
+                    current_line.append_styling_piece(
+                        piece_type=piece_types.HREF,
+                        index=(match.start(2), match.end(2)),
+                        data={data_types.URL: match.group(4)}
+                    )
+
+                    current_line.delete_indexes_from_content(
+                        prev_seq[-2],
+                        prev_seq[-1]
+                    )
+                continue
 
             case _:
                 prev_seq: list[Tuple[int, int]] = []
@@ -132,16 +151,14 @@ def construct_line(line_content: str) -> line:
                     prev_seq.append(index_offset((group[0].start(), group[0].end()), indexes_to_be_removed=prev_seq))
                     prev_seq.append(index_offset((group[1].start(), group[1].end()), indexes_to_be_removed=prev_seq))
 
-                    group_indexes: Tuple[Tuple[int,int], Tuple[int,int]] = (prev_seq[-2], prev_seq[-1])
-
                     current_line.append_styling_piece(
                         piece_type=current_styling_pattern,
-                        index=(group_indexes[0][0], group_indexes[1][0] -1)
+                        index=(prev_seq[-2][0], prev_seq[-1][0] -1)
                     )
 
                     current_line.delete_indexes_from_content(
-                        (group_indexes[0][0], group_indexes[0][1]), 
-                        (group_indexes[1][0], group_indexes[1][1])
+                        prev_seq[-2], 
+                        prev_seq[-1]
                     )
 
     return current_line
@@ -157,6 +174,20 @@ def parse(markdown_article_path: str) -> list[line] | None:
 if __name__ == "__main__":
     #out = parse("./README.md")
     #print(out)
-    out = construct_line('> Match {#test1}')
+    out = construct_line(input(">"))
+    print("---------")
     print(out.content)
-    print([styling.data for styling in out.styling[styling_types.SPECIFIC]])
+    print("---------")
+
+    print("Specific:")
+    for styling in out.styling[styling_types.SPECIFIC]:
+        print(styling.style_type)
+        print(styling.index)
+        print("")
+    print("Global:")
+
+    for styling in out.styling[styling_types.GLOBAL]:
+        print(styling.style_type)
+        print(styling.data)
+        print("")
+    print("---------")
