@@ -31,6 +31,8 @@ class ParserTester(unittest.TestCase):
         # input_content, output_content : expected detected global piece types (in order)
         styling_tests: dict[Tuple[str, str], list[piece_types]] = {
             ("- Test", "Test"): [piece_types.BULLET],
+            ("- [x] Test", "Test"): [piece_types.BULLET, piece_types.TASK],
+            ("- [] Test", "Test"): [piece_types.BULLET, piece_types.TASK], #! Changing implementation in next commits
             ("# Test", "Test"): [piece_types.TITLE],
             ("# > - Test", "> - Test"): [piece_types.TITLE],
             ("> ## > - Test", "> - Test"): [piece_types.BLOCKQUOTE, piece_types.TITLE],
@@ -133,7 +135,7 @@ class ParserTester(unittest.TestCase):
         """
 
         # (Content, type of used styling for test, styling type), data for detected style
-        test_cases: dict[Tuple[str, styling_types, piece_types], dict[data_types, Union[piece_types, str, None]]] = {
+        test_cases: dict[Tuple[str, styling_types, piece_types], dict[data_types, Union[piece_types, str, None, bool]]] = {
             ("# Test", styling_types.GLOBAL, piece_types.TITLE): {
                 data_types.TITLE_SIZE: "1",
                 data_types.TITLE_ID: None
@@ -162,15 +164,22 @@ class ParserTester(unittest.TestCase):
                 data_types.URL: "https://google.com",
                 data_types.LINKTO: None
             },
+            ("- [x] Test", styling_types.GLOBAL, piece_types.TASK): {
+                data_types.CHECKED: True
+            },
+            ("- [] Test", styling_types.GLOBAL, piece_types.TASK): {
+                data_types.CHECKED: False
+            },
         }
 
         for test, expected in test_cases.items():
-            out = construct_line(line_content=test[0]).styling[test[1]][0]
+            out = construct_line(line_content=test[0])
+            to_test_styling = [styling_type for styling_type in out.styling[test[1]] if styling_type.style_type == test[2]][0]
 
-            self.assertEqual(out.style_type, test[2], "Styling type mismatch between output and expected")
+            self.assertEqual(to_test_styling.style_type, test[2], "Styling type mismatch between output and expected")
             for data_type, data_value in expected.items():
-                if data_value is None: self.assertIs(data_type not in out.data.keys(), True)
-                else: self.assertEqual(out.data[data_type], expected[data_type], "Data mismatch between output and expected")
+                if data_value is None: self.assertIs(data_type not in to_test_styling.data.keys(), True)
+                else: self.assertEqual(to_test_styling.data[data_type], expected[data_type], "Data mismatch between output and expected")
 
     def test_appending_style(self):
         """

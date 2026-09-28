@@ -16,11 +16,11 @@ class piece:
     def __init__(self,
         style_type: piece_types,
         index: Union[Tuple[int, int], None] = None,
-        data: dict[data_types, str] = {}
+        data: dict[data_types, Union[str, bool]] = {}
     ):
         self.style_type: piece_types = style_type
         self.index: Union[Tuple[int, int], None] = index
-        self.data: dict[data_types, str] = data
+        self.data: dict[data_types, Union[str, bool]] = data
 
     def append_data_to_piece(self, data_type: data_types, value: str) -> None: self.data[data_type] = value
 class line:
@@ -44,8 +44,8 @@ class line:
     def append_styling_piece(self, 
             piece_type: piece_types, 
             index: Union[Tuple[int, int], None] = None, 
-            data: dict[data_types, str] = {}) -> bool:
-        
+            data: dict[data_types, Union[str, bool]] = {}) -> bool:
+
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type, data=data))
             return True
@@ -63,11 +63,12 @@ class line:
     def invalid_global_styling_sequences(self) -> list[Union[piece_types,None]]:
         for styling_type in [elem.style_type for elem in self.styling[styling_types.GLOBAL]]:
             match styling_type:
-                case piece_types.TITLE:
+                case piece_types.TITLE | piece_types.TASK:
                     return [
                         piece_types.TITLE,
                         piece_types.BLOCKQUOTE,
-                        piece_types.BULLET
+                        piece_types.BULLET,
+                        piece_types.TASK
                     ]
                 case _: continue
         return []
@@ -91,9 +92,16 @@ def construct_line(line_content: str) -> line:
                 match current_styling_pattern:
                     case piece_types.BLOCKQUOTE: 
                         for _ in range(len(seq)): current_line.append_styling_piece(piece_type=piece_types.BLOCKQUOTE)
-                    case piece_types.TITLE: current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: str(len(seq))})
+
+                    case piece_types.TITLE: 
+                        current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: str(len(seq))})
+
+                    case piece_types.TASK:
+                        if piece_types.BULLET == current_line.styling[styling_types.GLOBAL][-1].style_type:
+                            current_line.append_styling_piece(piece_type=piece_types.TASK, data={data_types.CHECKED: found_pattern.group(1) == "x"}) 
                     
                     case _: current_line.append_styling_piece(piece_type=current_styling_pattern)
+                break
 
         # If no valid pattern found: stop searching global styling
         if not seq_valid: break
@@ -175,6 +183,6 @@ def parse(markdown_article_path: str) -> list[line] | None:
 if __name__ == "__main__":
     #out = parse("./README.md")
     #print(out)
-    out = construct_line("**hello from** [test link](https://google.com)")
+    out = construct_line("- [] **hello from** [test link](https://google.com)")
     print(out.content)
     print([styling.index for styling in out.styling[styling_types.SPECIFIC]])
