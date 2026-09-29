@@ -20,5 +20,5 @@
 - [x] ~~Rethink the **specific styling detection system** for code reduction~~
 - [x] ~~Add a way to change **indexes of found styling patterns** to still be correct~~
 - [ ] Implement regex groups for better detection for images and links (**Partly done**)
-- [ ] Better detection implementation for hrefs ~~and regex for url~~
+- [x] ~~Better detection implementation for hrefs and regex for url~~
 - [ ] Fix not 100% supported tasklists (like in markdown) after better implementation for hrefs
