@@ -10,7 +10,7 @@
   - [x] Horisontal rules
   - [ ] Multi Bullet point 
   - [ ] Images
-  - [x] Task lists (not 100% like markdown)
+  - [x] Task lists
   - [x] URLS
   - [x] Hrefs 
   - [x] Title sizes from 4-6
@@ -21,4 +21,4 @@
 - [x] ~~Add a way to change **indexes of found styling patterns** to still be correct~~
 - [ ] Implement regex groups for better detection for images and links (**Partly done**)
 - [x] ~~Better detection implementation for hrefs and regex for url~~
-- [ ] Fix not 100% supported tasklists (like in markdown) after better implementation for hrefs
+- [x] ~~Fix not 100% supported tasklists (like in markdown) after better implementation for hrefs~~

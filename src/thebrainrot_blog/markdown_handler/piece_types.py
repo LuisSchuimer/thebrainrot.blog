@@ -38,6 +38,7 @@ class data_types(Enum):
     URL = "url"
     LINKTO = "linkto"
     CHECKED = "checked"
+    HAS_TASK = "has_tast"
     TITLE_SIZE = "title_size"
     TITLE_ID = "title_id"
 
@@ -48,8 +49,7 @@ piece_seqences = {
         piece_types.BLOCKQUOTE: r"^>.*",
         piece_types.TITLE: r"^[#]{1,6}$",
         piece_types.BULLET: r"^-",
-        piece_types.HORIZONTAL_RULES: r"^\s*\*\*\*\s*$",
-        piece_types.TASK: r"\[([x]?)\]"
+        piece_types.HORIZONTAL_RULES: r"^\s*\*\*\*\s*$"
     },
     styling_types.SPECIFIC: {
         piece_types.BOLD: r"[\*]{2}",
@@ -59,5 +59,6 @@ piece_seqences = {
         piece_types.HIGHLIGHT: r"[=]{2}",
         piece_types.URL: r"(?<!\]\()https?:\/\/[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/?",
         piece_types.HREF: r"(\[)([a-zA-Z0-9\s.]+)(\]\((https?:\/\/?[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/?)?\))",
+        piece_types.TASK: r'\[([x ])\]\s'
     }
 }

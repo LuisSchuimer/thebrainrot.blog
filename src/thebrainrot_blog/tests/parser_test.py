@@ -31,8 +31,8 @@ class ParserTester(unittest.TestCase):
         # input_content, output_content : expected detected global piece types (in order)
         styling_tests: dict[Tuple[str, str], list[piece_types]] = {
             ("- Test", "Test"): [piece_types.BULLET],
-            ("- [x] Test", "Test"): [piece_types.BULLET, piece_types.TASK],
-            ("- [] Test", "Test"): [piece_types.BULLET, piece_types.TASK], #! Changing implementation in next commits
+            ("- [x] Test", "Test"): [piece_types.BULLET],
+            ("- [ ] Test", "Test"): [piece_types.BULLET],
             ("# Test", "Test"): [piece_types.TITLE],
             ("# > - Test", "> - Test"): [piece_types.TITLE],
             ("> ## > - Test", "> - Test"): [piece_types.BLOCKQUOTE, piece_types.TITLE],
@@ -164,12 +164,18 @@ class ParserTester(unittest.TestCase):
                 data_types.URL: "https://google.com",
                 data_types.LINKTO: None
             },
-            ("- [x] Test", styling_types.GLOBAL, piece_types.TASK): {
-                data_types.CHECKED: True
+            ("- [x] Test", styling_types.GLOBAL, piece_types.BULLET): {
+                data_types.CHECKED: True,
+                data_types.HAS_TASK: True
             },
-            ("- [] Test", styling_types.GLOBAL, piece_types.TASK): {
-                data_types.CHECKED: False
+            ("- Test", styling_types.GLOBAL, piece_types.BULLET): {
+                data_types.CHECKED: None,
+                data_types.HAS_TASK: False,
             },
+            ("- [ ] Test", styling_types.GLOBAL, piece_types.BULLET): {
+                data_types.CHECKED: False,
+                data_types.HAS_TASK: True
+            }
         }
 
         for test, expected in test_cases.items():
@@ -178,7 +184,7 @@ class ParserTester(unittest.TestCase):
 
             self.assertEqual(to_test_styling.style_type, test[2], "Styling type mismatch between output and expected")
             for data_type, data_value in expected.items():
-                if data_value is None: self.assertIs(data_type not in to_test_styling.data.keys(), True)
+                if data_value is None: self.assertIs(data_type not in to_test_styling.data.keys(), True, "Data value absense"); continue
                 else: self.assertEqual(to_test_styling.data[data_type], expected[data_type], "Data mismatch between output and expected")
 
     def test_appending_style(self):

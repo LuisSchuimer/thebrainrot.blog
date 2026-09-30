@@ -1,4 +1,7 @@
-"Markdown to HTML parser as part of thebrainrot.blog written by Luis Schuimer"
+"""
+Markdown to HTML parser as part of thebrainrot.blog written by Luis Schuimer
+Entirely thought out, written and debugged by a human
+"""
 
 from os import path
 import re
@@ -21,8 +24,6 @@ class piece:
         self.style_type: piece_types = style_type
         self.index: Union[Tuple[int, int], None] = index
         self.data: dict[data_types, Union[str, bool]] = data
-
-    def append_data_to_piece(self, data_type: data_types, value: str) -> None: self.data[data_type] = value
 class line:
     def __init__(self,
         content: str = ""
@@ -96,10 +97,8 @@ def construct_line(line_content: str) -> line:
                     case piece_types.TITLE: 
                         current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: str(len(seq))})
 
-                    case piece_types.TASK:
-                        if piece_types.BULLET == current_line.styling[styling_types.GLOBAL][-1].style_type:
-                            current_line.append_styling_piece(piece_type=piece_types.TASK, data={data_types.CHECKED: found_pattern.group(1) == "x"}) 
-                    
+                    case piece_types.BULLET: current_line.append_styling_piece(piece_type=piece_types.BULLET, data={data_types.HAS_TASK: False})
+
                     case _: current_line.append_styling_piece(piece_type=current_styling_pattern)
                 break
 
@@ -134,6 +133,7 @@ def construct_line(line_content: str) -> line:
 
     for current_styling_pattern in piece_seqences[styling_types.SPECIFIC]:
         matches: list[re.Match[str]] = [match for match in re.finditer(piece_seqences[styling_types.SPECIFIC][current_styling_pattern], current_line.content)]
+        if not matches: continue
 
         match current_styling_pattern:
             # If url type seen continue with only adding a styling type to it
@@ -147,14 +147,23 @@ def construct_line(line_content: str) -> line:
 
             # If title id (like {#test}) is seen continue with this
             case piece_types.TITLE_ID:
-                if not matches: continue
-
                 for styling_type in current_line.styling[styling_types.GLOBAL]:
                     if styling_type.style_type is piece_types.TITLE: 
-                        styling_type.append_data_to_piece(data_type=data_types.TITLE_ID, value=matches[0].group(1))
+                        styling_type.data[data_types.TITLE_ID] = matches[0].group(1)
 
                         current_line.delete_indexes_from_content(
-                            (matches[0].start(), matches[0].end()), 
+                            (matches[0].start(), matches[0].end() +1), # +1 because of whitespace char
+                        )
+                continue
+
+            #! Temporary relocation of task list detection to this spot
+            case piece_types.TASK:
+                for styling_type in current_line.styling[styling_types.GLOBAL]:
+                    if styling_type.style_type is piece_types.BULLET and not styling_type.data[data_types.HAS_TASK]:
+                        styling_type.data[data_types.HAS_TASK], styling_type.data[data_types.CHECKED] = True, matches[0].group(1) == "x"
+
+                        current_line.delete_indexes_from_content(
+                            (matches[0].start(), matches[0].end())
                         )
                 continue
 
@@ -199,6 +208,6 @@ def parse(markdown_article_path: str) -> list[line] | None:
 if __name__ == "__main__":
     #out = parse("./README.md")
     #print(out)
-    out = construct_line("**hello from** my *parser*")
+    out = construct_line("- [ ] Test")
     print(out.content)
     print([styling.index for styling in out.styling[styling_types.SPECIFIC]])
