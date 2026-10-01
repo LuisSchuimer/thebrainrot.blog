@@ -14,7 +14,7 @@
   - [x] URLS
   - [x] Hrefs 
   - [x] Title sizes from 4-6
-  - [ ] Links inside document
+  - [x] Links inside document
 - Implement more options for styling
   - [x] Title ids (links in document still to be done)
 - [x] ~~Rethink the **specific styling detection system** for code reduction~~

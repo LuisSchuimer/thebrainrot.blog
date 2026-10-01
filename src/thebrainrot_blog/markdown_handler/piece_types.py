@@ -35,8 +35,7 @@ class data_types(Enum):
         may include image urls or links
     """
 
-    URL = "url"
-    LINKTO = "linkto"
+    LINK = "link"
     CHECKED = "checked"
     HAS_TASK = "has_tast"
     TITLE_SIZE = "title_size"
@@ -58,7 +57,7 @@ piece_seqences = {
         piece_types.STRIKETHROUGH: r"[~]{2}",
         piece_types.HIGHLIGHT: r"[=]{2}",
         piece_types.URL: r"(?<!\]\()https?:\/\/[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/?",
-        piece_types.HREF: r"(\[)([a-zA-Z0-9\s.]+)(\]\((https?:\/\/?[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/?)?\))",
+        piece_types.HREF: r"(\[)([a-zA-Z0-9\s.]+)(\]\((https?:\/\/?[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/??|#[a-zA-Z0-9_]+)\))",
         piece_types.TASK: r'\[([x ])\]\s'
     }
 }

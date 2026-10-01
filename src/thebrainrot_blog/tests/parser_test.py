@@ -161,8 +161,10 @@ class ParserTester(unittest.TestCase):
                 data_types.TITLE_ID: None
             },
             ("[test link here](https://google.com)", styling_types.SPECIFIC, piece_types.HREF): {
-                data_types.URL: "https://google.com",
-                data_types.LINKTO: None
+                data_types.LINK: "https://google.com"
+            },
+            ("[test link here](#test)", styling_types.SPECIFIC, piece_types.HREF): {
+                data_types.LINK: "#test"
             },
             ("- [x] Test", styling_types.GLOBAL, piece_types.BULLET): {
                 data_types.CHECKED: True,

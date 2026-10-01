@@ -173,7 +173,7 @@ def construct_line(line_content: str) -> line:
                     prev_seq = handle_new_styling_piece(
                         current_styling_pattern=current_styling_pattern,
                         styling_indexes=(match.start(2), match.end(2) -1),
-                        styling_data={data_types.URL: match.group(4)},
+                        styling_data={data_types.LINK: match.group(4)},
                         delete_indexes=True,
                         prev_seq=prev_seq,
                         indexes_to_delete=[(match.start(1), match.end(1)), (match.start(3), match.end(3))],
