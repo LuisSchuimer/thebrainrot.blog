@@ -170,10 +170,19 @@ def construct_line(line_content: str) -> line:
             case piece_types.HREF:
                 prev_seq: list[Tuple[int,int]] = []
                 for match in matches:
+                    #! write global id stack
+                    # look if link is not defined in any title -> if yes: continue with next element
+                    if (link := match.group(4)) not in [data[data_types.TITLE_ID] for data in [
+                        title_type.data for title_type in current_line.styling[styling_types.GLOBAL] 
+                        if title_type.style_type is piece_types.TITLE
+                        ] if data_types.TITLE_ID in data.keys()] and link[0] == "#":
+
+                        continue
+                    
                     prev_seq = handle_new_styling_piece(
                         current_styling_pattern=current_styling_pattern,
                         styling_indexes=(match.start(2), match.end(2) -1),
-                        styling_data={data_types.LINK: match.group(4)},
+                        styling_data={data_types.LINK: link},
                         delete_indexes=True,
                         prev_seq=prev_seq,
                         indexes_to_delete=[(match.start(1), match.end(1)), (match.start(3), match.end(3))],
@@ -208,6 +217,6 @@ def parse(markdown_article_path: str) -> list[line] | None:
 if __name__ == "__main__":
     #out = parse("./README.md")
     #print(out)
-    out = construct_line("- [ ] Test")
+    out = construct_line("[link](#test)")
     print(out.content)
     print([styling.index for styling in out.styling[styling_types.SPECIFIC]])
