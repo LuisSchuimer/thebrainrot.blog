@@ -4,7 +4,8 @@ from thebrainrot_blog.markdown_handler.parse_markdown import (
     parse, 
     construct_line, 
     line, 
-    piece
+    piece,
+    article
 )
 from thebrainrot_blog.markdown_handler.piece_types import (
     piece_types, 
@@ -138,33 +139,30 @@ class ParserTester(unittest.TestCase):
         test_cases: dict[Tuple[str, styling_types, piece_types], dict[data_types, Union[piece_types, str, None, bool]]] = {
             ("# Test", styling_types.GLOBAL, piece_types.TITLE): {
                 data_types.TITLE_SIZE: "1",
-                data_types.TITLE_ID: None
+                data_types.REFERENCE: None
             },
             ("### Test Case here", styling_types.GLOBAL, piece_types.TITLE): {
                 data_types.TITLE_SIZE: "3",
-                data_types.TITLE_ID: None
+                data_types.REFERENCE: None
             },
             ("###### Test Case here", styling_types.GLOBAL, piece_types.TITLE): {
                 data_types.TITLE_SIZE: "6",
-                data_types.TITLE_ID: None
+                data_types.REFERENCE: None
             },
             ('### Test {#testLink}', styling_types.GLOBAL, piece_types.TITLE): {
                 data_types.TITLE_SIZE: "3",
-                data_types.TITLE_ID: "#testLink"
+                data_types.REFERENCE: "#testLink"
             },
             ('#### Test {#this_is_my_2_link}', styling_types.GLOBAL, piece_types.TITLE): {
                 data_types.TITLE_SIZE: "4",
-                data_types.TITLE_ID: "#this_is_my_2_link"
+                data_types.REFERENCE: "#this_is_my_2_link"
             },
             ('## Test {Test}', styling_types.GLOBAL, piece_types.TITLE): {
                 data_types.TITLE_SIZE: "2",
-                data_types.TITLE_ID: None
+                data_types.REFERENCE: None
             },
             ("[test link here](https://google.com)", styling_types.SPECIFIC, piece_types.HREF): {
-                data_types.LINK: "https://google.com"
-            },
-            ("[test link here](#test)", styling_types.SPECIFIC, piece_types.HREF): {
-                data_types.LINK: "#test"
+                data_types.REFERENCE: "https://google.com"
             },
             ("- [x] Test", styling_types.GLOBAL, piece_types.BULLET): {
                 data_types.CHECKED: True,
@@ -256,3 +254,23 @@ class ParserTester(unittest.TestCase):
 
             for count, params in enumerate(expected):
                 self.assertEqual(out.styling[styling_types.SPECIFIC][count].index, params[1])
+
+    def test_article_references(self):
+        """
+        Tests if the line constructor checks and logs made references
+        and stops the user from adding non existant ones
+        """
+
+        # line content, references already defined, should be added
+        test_cases: dict[str, Tuple[list[str], bool]] = {
+            "[test](#test_case)": (["#test_case"], True),
+            "[test](#test)": (["#test_case"], False),
+            "[test](#this_is_a_test)": (["#this_is_a_test", "#test", "#ay"], True),
+            "[test](#test)": (["#test_case", "#important", "#testing"], False),
+        } 
+
+        for line_content, params in test_cases.items():
+            test_article = article()
+
+            for reference_link in params[0]: test_article.reference_links[reference_link] = piece(style_type=piece_types.DUMMY)
+            self.assertIs(params[1], len(construct_line(line_content, test_article).styling[styling_types.SPECIFIC]) != 0, f"({line_content})")

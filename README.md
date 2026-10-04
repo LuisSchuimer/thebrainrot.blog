@@ -22,4 +22,4 @@
 - [ ] Implement regex groups for better detection for images and links (**Partly done**)
 - [x] ~~Better detection implementation for hrefs and regex for url~~
 - [x] ~~Fix not 100% supported tasklists (like in markdown) after better implementation for hrefs~~
-- [ ] Write global id stack for article wide title ids
+- [x] Write global id stack for article wide title ids

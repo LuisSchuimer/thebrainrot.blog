@@ -18,6 +18,8 @@ class piece_types(Enum):
     HREF = "href"
     TASK = "task"
 
+    DUMMY = "dummy"
+
 class styling_types(Enum):
     """
         styling types defines the scope where styling is applied at
@@ -35,11 +37,10 @@ class data_types(Enum):
         may include image urls or links
     """
 
-    LINK = "link"
+    REFERENCE = "reference"
     CHECKED = "checked"
     HAS_TASK = "has_tast"
     TITLE_SIZE = "title_size"
-    TITLE_ID = "title_id"
 
 
 "Regex identification codes for all piece types"

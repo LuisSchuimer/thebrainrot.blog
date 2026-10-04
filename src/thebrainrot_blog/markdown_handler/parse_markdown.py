@@ -19,19 +19,19 @@ class piece:
     def __init__(self,
         style_type: piece_types,
         index: Union[Tuple[int, int], None] = None,
-        data: dict[data_types, Union[str, bool]] = {}
+        data: dict[data_types, Union[str, bool]] = dict()
     ):
-        self.style_type: piece_types = style_type
-        self.index: Union[Tuple[int, int], None] = index
-        self.data: dict[data_types, Union[str, bool]] = data
+        self.style_type = style_type
+        self.index = index
+        self.data = data
 class line:
     def __init__(self,
         content: str = ""
     ):
         self.content: str = content
         self.styling: dict[styling_types, list[piece]] = {
-            styling_types.GLOBAL: [],
-            styling_types.SPECIFIC: [],
+            styling_types.GLOBAL: list(),
+            styling_types.SPECIFIC: list(),
         }
 
     def delete_indexes_from_content(self, *indexes: Tuple[int,int]) -> None:
@@ -45,7 +45,7 @@ class line:
     def append_styling_piece(self, 
             piece_type: piece_types, 
             index: Union[Tuple[int, int], None] = None, 
-            data: dict[data_types, Union[str, bool]] = {}) -> bool:
+            data: dict[data_types, Union[str, bool]] = dict()) -> bool:
 
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type, data=data))
@@ -74,7 +74,16 @@ class line:
                 case _: continue
         return []
 
-def construct_line(line_content: str) -> line:
+class article:
+    def __init__(self,
+        reference_links: dict[str, piece] = dict() # Links inside the given article
+    ) -> None:
+        self.lines: list[line] = list()
+        self.reference_links = reference_links
+
+    def reference_link_exists(self, reference: str) -> bool: return reference in self.reference_links.keys()
+
+def construct_line(line_content: str, current_article: article = article()) -> line:
     current_line: line = line()
 
     current_line_content_list: list[str] = line_content.split()
@@ -149,7 +158,9 @@ def construct_line(line_content: str) -> line:
             case piece_types.TITLE_ID:
                 for styling_type in current_line.styling[styling_types.GLOBAL]:
                     if styling_type.style_type is piece_types.TITLE: 
-                        styling_type.data[data_types.TITLE_ID] = matches[0].group(1)
+                        styling_type.data[data_types.REFERENCE] = matches[0].group(1)
+
+                        current_article.reference_links[matches[0].group(1)] = styling_type
 
                         current_line.delete_indexes_from_content(
                             (matches[0].start(), matches[0].end() +1), # +1 because of whitespace char
@@ -168,21 +179,14 @@ def construct_line(line_content: str) -> line:
                 continue
 
             case piece_types.HREF:
-                prev_seq: list[Tuple[int,int]] = []
+                prev_seq: list[Tuple[int,int]] = list()
                 for match in matches:
-                    #! write global id stack
-                    # look if link is not defined in any title -> if yes: continue with next element
-                    if (link := match.group(4)) not in [data[data_types.TITLE_ID] for data in [
-                        title_type.data for title_type in current_line.styling[styling_types.GLOBAL] 
-                        if title_type.style_type is piece_types.TITLE
-                        ] if data_types.TITLE_ID in data.keys()] and link[0] == "#":
-
-                        continue
+                    if not current_article.reference_link_exists(reference=(reference := match.group(4))) and reference[0] == "#": continue
                     
                     prev_seq = handle_new_styling_piece(
                         current_styling_pattern=current_styling_pattern,
                         styling_indexes=(match.start(2), match.end(2) -1),
-                        styling_data={data_types.LINK: link},
+                        styling_data={data_types.REFERENCE: reference},
                         delete_indexes=True,
                         prev_seq=prev_seq,
                         indexes_to_delete=[(match.start(1), match.end(1)), (match.start(3), match.end(3))],
@@ -190,7 +194,7 @@ def construct_line(line_content: str) -> line:
                 continue
 
             case _:
-                prev_seq: list[Tuple[int, int]] = []
+                prev_seq: list[Tuple[int, int]] = list()
                 for group in [(matches[i-1], matches[i]) for i in range(1, len(matches), 2)]:
                     prev_seq = handle_new_styling_piece(
                         current_styling_pattern=current_styling_pattern,
@@ -206,17 +210,19 @@ def construct_line(line_content: str) -> line:
 
     return current_line
 
-def parse(markdown_article_path: str) -> list[line] | None:
+def parse(markdown_article_path: str) -> article | None:
+    current_article: article = article()
     if not path.isfile(markdown_article_path): return None
 
     with open(markdown_article_path, encoding="utf8", mode="r") as article_file:
-        article: list[str] = [line_content.strip() for line_content in article_file]
+        markdown_file: list[str] = [line_content.strip() for line_content in article_file]
+    for current_line in markdown_file: current_article.lines.append(construct_line(current_line, current_article))
 
-    return [construct_line(content) for content in article]
+    return current_article
 
 if __name__ == "__main__":
     #out = parse("./README.md")
     #print(out)
-    out = construct_line("[link](#test)")
+    out = construct_line("[link](#test_case)", current_article=article({"#test_case": piece(piece_types.DUMMY)}))
     print(out.content)
-    print([styling.index for styling in out.styling[styling_types.SPECIFIC]])
+    print([styling.style_type for styling in out.styling[styling_types.SPECIFIC]])
