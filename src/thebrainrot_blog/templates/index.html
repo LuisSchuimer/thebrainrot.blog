@@ -1,6 +1,36 @@
-<h1>Test page</h1>
+<h1>The Brainrot Blog</h1>
 
+<p><b>--Still under construction--</b></p>
 
-{% autoescape false %}
-{{ test }}
-{% endautoescape %}
+<p>This is the first iteration of this site, displaying my current progress developing this from scratch</p>
+<p>This will include: a custom markdown converter for the blog articles, my software demos and applications and more</p>
+
+<p>Test my markdown parser here:</p>
+<textarea id="markdown_field" name="markdown_field">
+**Test**
+</textarea>
+
+<textarea id="output_field" name="output">
+Test
+</textarea>
+<textarea id="styling_field" name="output">
+BOLD
+</textarea>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script>
+    var socket = io();
+    const input_field = document.getElementById("markdown_field")
+    const output_field = document.getElementById("output_field")
+    const styling_field = document.getElementById("styling_field")
+
+    input_field.addEventListener("input", function(content_change) {
+        socket.emit("parser_submit", {"content": input_field.value})
+        output_field.value = input_field.value
+    })
+
+    socket.on("parser_return", (data) => {
+        output_field.value = data["content"]
+        styling_field.value = data["styling_types"]
+    });
+</script>

@@ -1,9 +1,9 @@
 from flask import request
 from typing import Tuple
 
-def get_remote_ip_addr() -> str | None:
+def get_remote_ip_addr() -> str:
     # returns connecting ip addr over cloudflare (if configured) or normal request ip addr (mostly for non-production)
-    return request.headers.get("Cf-Connecting-Ip") or request.remote_addr
+    return request.headers.get("Cf-Connecting-Ip") or request.remote_addr or ""
 
 def index_offset(to_be_offset: Tuple[int,int], indexes_to_be_removed: list[Tuple[int,int]]) -> Tuple[int,int]:
     for removed in indexes_to_be_removed:
