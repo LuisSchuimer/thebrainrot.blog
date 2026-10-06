@@ -1,36 +1,51 @@
-<h1>The Brainrot Blog</h1>
+<html>
+    <head>
+        <link href="{{ url_for("static", filename="css/output.css") }}" rel="stylesheet">
+        <meta name="viewport" content="width=device-width" initial-scale="1.0">
+    </head>
 
-<p><b>--Still under construction--</b></p>
+    <body class="bg-neutral-100">
+        <div class="bg-neutral-700 w-full p-4 sticky top-0">
+            <h1 class="text-xl text-heading font-extrabold text-neutral-300">
+                The Brainrot Blog <span class="text-sm font-medium text-neutral-500">by Luis Schuimer</span>
+            </h1>
+        </div>
+        <div class="w-full p-4 bg-neutral-50 rounded shadow-xl">
+            <p>This design still looks <span class="font-bold">shit</span> because of my frontend skills but it does not matter because we are still in development.</p>
+            <p class="font-medium">Features of this blog after further development will include:</p>
+        </div>
 
-<p>This is the first iteration of this site, displaying my current progress developing this from scratch</p>
-<p>This will include: a custom markdown converter for the blog articles, my software demos and applications and more</p>
+        <div class="mx-auto grid sm:grid-cols-2 gap-4 p-8 justify-items-center">
+            <div class="max-w-sm rounded overflow-hidden shadow-2xl">
+                <div class="px-4 py-4 bg-neutral-50">
+                    <div class="font-medium text-xl">Articles about tech</div>
+                    <p class="text-gray-700 text-base">
+                        I will write about my own experiences, development processes to boost my productivity for projects in the near future.
+                    </p>
+                </div>
+            </div>
 
-<p>Test my markdown parser here:</p>
-<textarea id="markdown_field" name="markdown_field">
-**Test**
-</textarea>
+            <div class="max-w-sm rounded overflow-hidden shadow-2xl">
+                <div class="px-4 py-4 bg-neutral-50">
+                    <div class="font-medium text-xl">100% human written code</div>
+                    <p class="text-gray-700 text-base">
+                        I find it funny and frightening at the same time that this is an achievement to be proud of.
+                    </p>
+                </div>
+            </div>
 
-<textarea id="output_field" name="output">
-Test
-</textarea>
-<textarea id="styling_field" name="output">
-BOLD
-</textarea>
+            <div class="max-w-sm rounded overflow-hidden shadow-2xl">
+                <div class="px-4 py-4 bg-neutral-50">
+                    <div class="font-medium text-xl">Software demos</div>
+                    <p class="text-gray-700 text-base">
+                        Projects that act as a web-application will be available here and open for everyone to try out and use for themselves.
+                    </p>
+                </div>
+            </div>
+        </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-<script>
-    var socket = io();
-    const input_field = document.getElementById("markdown_field")
-    const output_field = document.getElementById("output_field")
-    const styling_field = document.getElementById("styling_field")
-
-    input_field.addEventListener("input", function(content_change) {
-        socket.emit("parser_submit", {"content": input_field.value})
-        output_field.value = input_field.value
-    })
-
-    socket.on("parser_return", (data) => {
-        output_field.value = data["content"]
-        styling_field.value = data["styling_types"]
-    });
-</script>
+        <div class="w-full p-4 bg-neutral-50 rounded shadow-xl bottom-0">
+            <p>Follow the development process on <a class="font-bold text-blue-500" href="https://github.com/LuisSchuimer/thebrainrot.blog">GitHub</a></p>
+        </div>
+    </body>
+</html>
