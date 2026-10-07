@@ -42,7 +42,8 @@ class ParserTester(unittest.TestCase):
             ("#### -Test", "-Test"): [piece_types.TITLE],
             ("> # Test", "Test"): [ piece_types.BLOCKQUOTE, piece_types.TITLE],
             (">> - ## Test", "Test"): [piece_types.BLOCKQUOTE, piece_types.BLOCKQUOTE, piece_types.BULLET, piece_types.TITLE],
-            ("*** ", ""): [piece_types.HORIZONTAL_RULES]
+            ("*** ", ""): [piece_types.HORIZONTAL_RULES],
+            ("> ***", "***"): [piece_types.BLOCKQUOTE]
         }
 
         for content, expected_styling_pieces in styling_tests.items():

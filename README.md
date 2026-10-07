@@ -23,3 +23,4 @@
 - [x] ~~Better detection implementation for hrefs and regex for url~~
 - [x] ~~Fix not 100% supported tasklists (like in markdown) after better implementation for hrefs~~
 - [x] ~~Write global id stack for article wide title ids~~
+- [ ] Fix horisontal rules not obeying the rules of markdown syntax

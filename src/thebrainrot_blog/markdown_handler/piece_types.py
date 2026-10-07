@@ -49,7 +49,7 @@ piece_seqences = {
         piece_types.BLOCKQUOTE: r"^>.*",
         piece_types.TITLE: r"^[#]{1,6}$",
         piece_types.BULLET: r"^-",
-        piece_types.HORIZONTAL_RULES: r"^\s*\*\*\*\s*$"
+        piece_types.HORIZONTAL_RULES: r"^\*\*\*$"
     },
     styling_types.SPECIFIC: {
         piece_types.BOLD: r"[\*]{2}",

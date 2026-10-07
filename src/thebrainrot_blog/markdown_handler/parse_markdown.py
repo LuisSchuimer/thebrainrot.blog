@@ -64,15 +64,16 @@ class line:
     def invalid_global_styling_sequences(self) -> list[Union[piece_types,None]]:
         for styling_type in [elem.style_type for elem in self.styling[styling_types.GLOBAL]]:
             match styling_type:
-                case piece_types.TITLE | piece_types.TASK:
+                case piece_types.TITLE | piece_types.TASK | piece_types.HORIZONTAL_RULES:
                     return [
                         piece_types.TITLE,
                         piece_types.BLOCKQUOTE,
                         piece_types.BULLET,
-                        piece_types.TASK
+                        piece_types.TASK,
+                        piece_types.HORIZONTAL_RULES
                     ]
                 case _: continue
-        return []
+        return [] if len(self.styling[styling_types.GLOBAL]) == 0 else [piece_types.HORIZONTAL_RULES]
 
 class article:
     def __init__(self,
