@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Tuple
 class piece_types(Enum):
     """
     piece_types defines the global and specific types of applied styling
@@ -44,7 +45,7 @@ class data_types(Enum):
 
 
 "Regex identification codes for all piece types"
-piece_seqences = {
+piece_seqences: dict[styling_types, dict[piece_types, str]] = {
     styling_types.GLOBAL: {
         piece_types.BLOCKQUOTE: r"^>.*",
         piece_types.TITLE: r"^[#]{1,6}$",
@@ -60,5 +61,11 @@ piece_seqences = {
         piece_types.URL: r"(?<!\]\()https?:\/\/[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/?",
         piece_types.HREF: r"(\[)([a-zA-Z0-9\s.]+)(\]\((https?:\/\/?[\da-z\.-]+\.[a-z]{2,6}[\/\w\.-]*\/??|#[a-zA-Z0-9_]+)\))",
         piece_types.TASK: r'\[([x ])\]\s'
+    }
+}
+
+piece_styles: dict[styling_types, dict[piece_types, Tuple[str, str]]] = {
+    styling_types.GLOBAL: {
+        piece_types.BLOCKQUOTE: ('div', 'p-4 bg-neutral-400 border border-solid rounded')
     }
 }

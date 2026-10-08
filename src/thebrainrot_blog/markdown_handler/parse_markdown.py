@@ -7,7 +7,7 @@ from os import path
 import re
 from typing import Union, Tuple
 
-from thebrainrot_blog.markdown_handler.piece_types import (
+from thebrainrot_blog.markdown_handler.handler_config import (
     piece_types,
     piece_seqences,
     styling_types,

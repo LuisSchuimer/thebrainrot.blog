@@ -7,7 +7,7 @@ from thebrainrot_blog.markdown_handler.parse_markdown import (
     piece,
     article
 )
-from thebrainrot_blog.markdown_handler.piece_types import (
+from thebrainrot_blog.markdown_handler.handler_config import (
     piece_types, 
     styling_types, 
     data_types
@@ -20,7 +20,7 @@ class ParserTester(unittest.TestCase):
 
     # Basic .md file handling checks
     def test_invalid_file(self): self.assertIs(parse("./"), None)
-    def test_valid_file(self): self.assertIsNot("./README.md", None)
+    def test_valid_file(self): self.assertIsNot(parse("./README.md"), None)
 
     # global styling translation checks
     def test_global_styling(self):

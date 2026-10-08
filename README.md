@@ -1,4 +1,8 @@
 # The Brainrot Blog
+## Renderer
+**ToDo List**
+- [ ] Envision a new system for actively and elegantly render to html code
+- [ ] Think about data structures for new handler_config file
 ## Parser
 **ToDo List**
 - [x] ~~Write tests for **specific styling recogniton**~~

@@ -26,6 +26,7 @@ dev-dependencies = []
 "thebrainrot-blog" = "rye run python -m thebrainrot_blog.main"
 "parser" = "rye run python -m thebrainrot_blog.markdown_handler.parse_markdown"
 "parser-test" = "rye run python -m unittest thebrainrot_blog.tests.parser_test -v"
+"renderer-test" = "rye run python -m unittest thebrainrot_blog.tests.renderer_test -v"
 "css-watch" = "rye run tailwindcss -i src/thebrainrot_blog/static/css/input.css -o src/thebrainrot_blog/static/css/output.css --watch"
 
 [tool.hatch.metadata]
