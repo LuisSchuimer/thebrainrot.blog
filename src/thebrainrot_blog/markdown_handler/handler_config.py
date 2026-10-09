@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, Union
 class piece_types(Enum):
     """
     piece_types defines the global and specific types of applied styling
@@ -64,7 +64,7 @@ piece_seqences: dict[styling_types, dict[piece_types, str]] = {
     }
 }
 
-piece_styles: dict[styling_types, dict[piece_types, Tuple[str, str]]] = {
+piece_styles: dict[styling_types, dict[piece_types, Tuple[str, Union[str, None]]]] = {
     styling_types.GLOBAL: {
         piece_types.BLOCKQUOTE: ('div', 'p-4 bg-neutral-400 border border-solid rounded')
     }
