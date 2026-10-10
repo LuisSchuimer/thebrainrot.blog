@@ -188,6 +188,32 @@ class ParserTester(unittest.TestCase):
                 if data_value is None: self.assertIs(data_type not in to_test_styling.data.keys(), True, "Data value absense"); continue
                 else: self.assertEqual(to_test_styling.data[data_type], expected[data_type], "Data mismatch between output and expected")
 
+    def test_line_data(self):
+        """
+        Test if line data is correctly identified and saved with correct values and data_types
+        """
+
+        # line content -> line_data_type, expected value (None if should not be present)
+        test_cases: dict[str, dict[data_types, Union[int, None]]] = {
+            ">>> Test": {
+                data_types.BLOCKQUOTE_DEEPNESS: 3
+            },
+            ">> This is a test": {
+                data_types.BLOCKQUOTE_DEEPNESS: 2
+            },
+            "Test": {
+                data_types.BLOCKQUOTE_DEEPNESS: None
+            }
+        }
+
+        for content, expected in test_cases.items():
+            out = construct_line(line_content=content)
+
+            for data_type, value in expected.items():
+                if value is None: self.assertEqual(data_type not in out.data.keys(), True, "Given data type should be not present but is")
+                else: self.assertEqual(out.data[data_type], value, "Value mismatch between expected and output")
+
+
     def test_appending_style(self):
         """
         Tests if the parser appends specific and global styling types correctly into each 

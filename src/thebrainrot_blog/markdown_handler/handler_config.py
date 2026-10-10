@@ -42,6 +42,7 @@ class data_types(Enum):
     CHECKED = "checked"
     HAS_TASK = "has_tast"
     TITLE_SIZE = "title_size"
+    BLOCKQUOTE_DEEPNESS = "blockquote_deepness"
 
 
 "Regex identification codes for all piece types"

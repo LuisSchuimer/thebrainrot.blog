@@ -1,7 +1,17 @@
 # The Brainrot Blog
 ## Renderer
 **ToDo List**
-- [ ] Envision a new system for actively and elegantly render to html code
+- [x] Envision a new system for actively and elegantly render to html code
+  - **Specific styling**
+    1. Goes through every char of content
+    2. Looks for styling types associated **(created, ending or still active at char)**
+    3. Adds char **(with html element for styling to article html)**
+    4. Repeat
+  - **Global styling**
+    1. Go through every global styling
+    2. Add needed html
+    3. Close html element when line content is added
+    4. Also check for blockqoutes and bullet points that are multiline, if they need to be closed
 - [ ] Think about data structures for new handler_config file
 ## Parser
 **ToDo List**

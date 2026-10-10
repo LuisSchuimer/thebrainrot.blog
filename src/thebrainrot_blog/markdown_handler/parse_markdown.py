@@ -29,6 +29,7 @@ class line:
         content: str = ""
     ):
         self.content: str = content
+        self.data: dict[data_types, Union[str, int]] = dict()
         self.styling: dict[styling_types, list[piece]] = {
             styling_types.GLOBAL: list(),
             styling_types.SPECIFIC: list(),
@@ -102,7 +103,9 @@ def construct_line(line_content: str, current_article: article = article()) -> l
 
                 match current_styling_pattern:
                     case piece_types.BLOCKQUOTE: 
-                        for _ in range(len(seq)): current_line.append_styling_piece(piece_type=piece_types.BLOCKQUOTE)
+                        current_line.data[data_types.BLOCKQUOTE_DEEPNESS] = len(seq)
+                        for _ in range(len(seq)): 
+                            current_line.append_styling_piece(piece_type=piece_types.BLOCKQUOTE)
 
                     case piece_types.TITLE: 
                         current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: str(len(seq))})
