@@ -137,29 +137,29 @@ class ParserTester(unittest.TestCase):
         """
 
         # (Content, type of used styling for test, styling type), data for detected style
-        test_cases: dict[Tuple[str, styling_types, piece_types], dict[data_types, Union[piece_types, str, None, bool]]] = {
+        test_cases: dict[Tuple[str, styling_types, piece_types], dict[data_types, Union[piece_types, str, int, None, bool]]] = {
             ("# Test", styling_types.GLOBAL, piece_types.TITLE): {
-                data_types.TITLE_SIZE: "1",
+                data_types.TITLE_SIZE: 1,
                 data_types.REFERENCE: None
             },
             ("### Test Case here", styling_types.GLOBAL, piece_types.TITLE): {
-                data_types.TITLE_SIZE: "3",
+                data_types.TITLE_SIZE: 3,
                 data_types.REFERENCE: None
             },
             ("###### Test Case here", styling_types.GLOBAL, piece_types.TITLE): {
-                data_types.TITLE_SIZE: "6",
+                data_types.TITLE_SIZE: 6,
                 data_types.REFERENCE: None
             },
             ('### Test {#testLink}', styling_types.GLOBAL, piece_types.TITLE): {
-                data_types.TITLE_SIZE: "3",
+                data_types.TITLE_SIZE: 3,
                 data_types.REFERENCE: "#testLink"
             },
             ('#### Test {#this_is_my_2_link}', styling_types.GLOBAL, piece_types.TITLE): {
-                data_types.TITLE_SIZE: "4",
+                data_types.TITLE_SIZE: 4,
                 data_types.REFERENCE: "#this_is_my_2_link"
             },
             ('## Test {Test}', styling_types.GLOBAL, piece_types.TITLE): {
-                data_types.TITLE_SIZE: "2",
+                data_types.TITLE_SIZE: 2,
                 data_types.REFERENCE: None
             },
             ("[test link here](https://google.com)", styling_types.SPECIFIC, piece_types.HREF): {

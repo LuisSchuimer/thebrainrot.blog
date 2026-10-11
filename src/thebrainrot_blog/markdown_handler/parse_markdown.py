@@ -19,7 +19,7 @@ class piece:
     def __init__(self,
         style_type: piece_types,
         index: Union[Tuple[int, int], None] = None,
-        data: dict[data_types, Union[str, bool]] = dict()
+        data: dict[data_types, Union[str, int, bool]] = dict()
     ):
         self.style_type = style_type
         self.index = index
@@ -46,7 +46,7 @@ class line:
     def append_styling_piece(self, 
             piece_type: piece_types, 
             index: Union[Tuple[int, int], None] = None, 
-            data: dict[data_types, Union[str, bool]] = dict()) -> bool:
+            data: dict[data_types, Union[str, int, bool]] = dict()) -> bool:
 
         if piece_type in piece_seqences[styling_types.GLOBAL].keys():
             self.styling[styling_types.GLOBAL].append(piece(style_type=piece_type, data=data))
@@ -108,7 +108,7 @@ def construct_line(line_content: str, current_article: article = article()) -> l
                             current_line.append_styling_piece(piece_type=piece_types.BLOCKQUOTE)
 
                     case piece_types.TITLE: 
-                        current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: str(len(seq))})
+                        current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: len(seq)})
 
                     case piece_types.BULLET: current_line.append_styling_piece(piece_type=piece_types.BULLET, data={data_types.HAS_TASK: False})
 
@@ -124,7 +124,7 @@ def construct_line(line_content: str, current_article: article = article()) -> l
     def handle_new_styling_piece(
             current_styling_pattern: piece_types, 
             styling_indexes: Tuple[int,int],
-            styling_data: dict[data_types, Union[str, bool]] = {},
+            styling_data: dict[data_types, Union[str, int, bool]] = {},
             delete_indexes: bool = False,
             prev_seq: Union[list[Tuple[int,int]], None] = None,
             indexes_to_delete: Union[list[Tuple[int,int]], None] = None,

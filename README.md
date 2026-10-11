@@ -12,7 +12,22 @@
     2. Add needed html
     3. Close html element when line content is added
     4. Also check for blockqoutes and bullet points that are multiline, if they need to be closed
-- [ ] Think about data structures for new handler_config file
+- [x] ~~Think about data structures for new handler_config file~~
+- [ ] **Make code more elegant**
+- Add support for more styling types
+  - [x] Highlight (==)
+  - [x] Strikethrough (~~) 
+  - [x] Blockquote (>)
+  - [x] Bold
+  - [x] Italic
+  - [x] Highlight
+  - [ ] Horisontal rules
+  - [ ] Task lists
+  - [ ] URLS
+  - [ ] Hrefs 
+  - [x] Title sizes from 4-6
+  - [ ] Links inside document
+- [ ] Add tests for renderer
 ## Parser
 **ToDo List**
 - [x] ~~Write tests for **specific styling recogniton**~~

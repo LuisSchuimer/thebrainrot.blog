@@ -23,7 +23,7 @@ managed = true
 dev-dependencies = []
 
 [tool.rye.scripts]
-"thebrainrot-blog" = "rye run python -m thebrainrot_blog.main"
+"server" = "rye run python -m thebrainrot_blog.main"
 "parser" = "rye run python -m thebrainrot_blog.markdown_handler.parse_markdown"
 "renderer" = "rye run python -m thebrainrot_blog.markdown_handler.render_article"
 "parser-test" = "rye run python -m unittest thebrainrot_blog.tests.parser_test -v"

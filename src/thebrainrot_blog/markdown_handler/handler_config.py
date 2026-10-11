@@ -32,6 +32,14 @@ class styling_types(Enum):
     GLOBAL = "global"
     SPECIFIC = "specific"
 
+class styling_association(Enum):
+    """
+        Defines the association a piece of text has to a styling type
+    """
+
+    STARTS = "starts"
+    ENDS = "ends"
+    CONTAINS = "contains"
 class data_types(Enum):
     """
         data types that can be used on specific styling types that 
@@ -65,8 +73,23 @@ piece_seqences: dict[styling_types, dict[piece_types, str]] = {
     }
 }
 
-piece_styles: dict[styling_types, dict[piece_types, Tuple[str, Union[str, None]]]] = {
+# global or specific styling -> (piece type, (element, styling, if needed condition))
+piece_styles: dict[styling_types, dict[piece_types, list[Tuple[str, Union[str, None], Union[Tuple[data_types, int], None]]]]] = {
     styling_types.GLOBAL: {
-        piece_types.BLOCKQUOTE: ('div', 'p-4 bg-neutral-400 border border-solid rounded')
+        piece_types.BLOCKQUOTE: [('div', 'p-4 bg-neutral-400 border border-solid rounded', None)],
+        piece_types.TITLE: [
+            ('div', "text-3xl font-bold", (data_types.TITLE_SIZE, 1)),
+            ("div", "text-2xl font-bold", (data_types.TITLE_SIZE, 2)),
+            ("div", "text-xl font-bold", (data_types.TITLE_SIZE, 3)),
+            ("div", "text-lg font-bold", (data_types.TITLE_SIZE, 4)),
+            ("div", "font-extrabold", (data_types.TITLE_SIZE, 5)),
+            ("div", "font-bold", (data_types.TITLE_SIZE, 6)),
+        ]
+    },
+    styling_types.SPECIFIC: {
+        piece_types.BOLD: [("span", "font-bold", None)],
+        piece_types.ITALIC: [("span", "italic", None)],
+        piece_types.STRIKETHROUGH: [("span", "line-through", None)],
+        piece_types.HIGHLIGHT: [("span", "text-yellow-600", None)]
     }
 }
