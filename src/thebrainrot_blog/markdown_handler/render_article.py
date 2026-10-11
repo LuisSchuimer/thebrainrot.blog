@@ -61,24 +61,31 @@ def render(markdown_path: str) -> None | str:
                             break
 
         if len(line.content) == 0: html_out += "<br>"
-        
-        html_out += "<p>"
-        for count, char in enumerate(line.content):
-            associated_styling_pieces = _check_associated_styling(current_line=line, char_index=count)
+        else:
+            html_out += "<p>"
+            for count, char in enumerate(line.content):
+                char_written: bool = False
+                associated_styling_pieces = _check_associated_styling(current_line=line, char_index=count)
 
-            if len(associated_styling_pieces) == 0:
-                html_out += char
-                continue
+                if len(associated_styling_pieces) == 0:
+                    html_out += char
+                    continue
 
-            for styling_piece, association in associated_styling_pieces:
-                match association:
-                    case styling_association.STARTS: 
-                        html_out += f"<{piece_styles[styling_types.SPECIFIC][styling_piece][0][0]} class='{piece_styles[styling_types.SPECIFIC][styling_piece][0][1]}'>{char}"
-                    case styling_association.ENDS:
-                        html_out += f"{char}</{piece_styles[styling_types.SPECIFIC][styling_piece][0][0]}>"
-                    case styling_association.CONTAINS: html_out += char
+                for styling_piece, association in associated_styling_pieces:
+                    match association:
+                        case styling_association.STARTS: 
+                            html_out += f"<{piece_styles[styling_types.SPECIFIC][styling_piece][0][0]} class='{piece_styles[styling_types.SPECIFIC][styling_piece][0][1]}'>"
+                            open_styles[styling_types.SPECIFIC].append((styling_piece, 0))
 
-        html_out += "</p>"
+                        case styling_association.ENDS:
+                            if not char_written: html_out += char; char_written = True
+                            html_out += f"</{piece_styles[styling_types.SPECIFIC][styling_piece][0][0]}>"
+
+                        case styling_association.CONTAINS: pass
+
+                if not char_written: html_out += char
+
+            html_out += "</p>"
 
         indexes_removed: list[int] = list()
         index: int = len(open_styles[styling_types.GLOBAL]) -1
