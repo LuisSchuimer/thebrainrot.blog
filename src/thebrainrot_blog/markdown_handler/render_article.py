@@ -14,6 +14,7 @@ from thebrainrot_blog.markdown_handler.handler_config import (
     styling_association
 )
 
+#! Rewrite because O(c*l)
 def _check_associated_styling(current_line: line, char_index: int) -> list[Tuple[piece_types, styling_association]]:
     associated_styling: list[Tuple[piece_types, styling_association]] = list()
     for styling_type in current_line.styling[styling_types.SPECIFIC]:
@@ -72,16 +73,9 @@ def render(markdown_path: str) -> None | str:
                     continue
 
                 for styling_piece, association in associated_styling_pieces:
-                    match association:
-                        case styling_association.STARTS: 
-                            html_out += f"<{piece_styles[styling_types.SPECIFIC][styling_piece][0][0]} class='{piece_styles[styling_types.SPECIFIC][styling_piece][0][1]}'>"
-                            open_styles[styling_types.SPECIFIC].append((styling_piece, 0))
-
-                        case styling_association.ENDS:
-                            if not char_written: html_out += char; char_written = True
-                            html_out += f"</{piece_styles[styling_types.SPECIFIC][styling_piece][0][0]}>"
-
-                        case styling_association.CONTAINS: pass
+                        if association in [styling_association.ENDS, styling_association.STARTS]:
+                            if association is styling_association.ENDS: html_out += char; char_written = True
+                            html_out += f"<{"/" if association is styling_association.ENDS else ""}{piece_styles[styling_types.SPECIFIC][styling_piece][0][0]}{f" class='{piece_styles[styling_types.SPECIFIC][styling_piece][0][1]}'" if association is not styling_association.ENDS else ""}>"
 
                 if not char_written: html_out += char
 
