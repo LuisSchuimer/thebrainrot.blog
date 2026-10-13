@@ -13,7 +13,12 @@
     3. Close html element when line content is added
     4. Also check for blockqoutes and bullet points that are multiline, if they need to be closed
 - [x] ~~Think about data structures for new handler_config file~~
-- [ ] **Make code more elegant**
+- [ ] **Make code more elegant and fast**
+  - Chars should not be added and checked all on their own (to slow)
+    - Maybe a system that returns a whole tree of styling and the content that can be directly added to the output html
+    - **Important**: Shouldn't be indpendant on index offset!
+  - Better Implementation of multiy line styles (blockquote and bullet)
+    - Should be considered in parser by looking at previous global styling patterns
 - Add support for more styling types
   - [x] Highlight (==)
   - [x] Strikethrough (~~) 
