@@ -5,6 +5,7 @@ def get_remote_ip_addr() -> str:
     # returns connecting ip addr over cloudflare (if configured) or normal request ip addr (mostly for non-production)
     return request.headers.get("Cf-Connecting-Ip") or request.remote_addr or ""
 
+# Shifts index to be correct after removal of multpile others
 def index_offset(to_be_offset: Tuple[int,int], indexes_to_be_removed: list[Tuple[int,int]]) -> Tuple[int,int]:
     for removed in indexes_to_be_removed:
         if removed[1] <= to_be_offset[0]:
