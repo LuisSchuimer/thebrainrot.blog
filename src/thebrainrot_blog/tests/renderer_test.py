@@ -21,7 +21,11 @@ class RendererTester(unittest.TestCase):
         test_cases: list[Tuple[str, str]] = [
             ("./src/thebrainrot_blog/tests/testdata/test.md", 
                 f"<p><{piece_styles[styling_types.SPECIFIC][piece_types.BOLD][0][0]} class='{piece_styles[styling_types.SPECIFIC][piece_types.BOLD][0][1]}'>Hello World</{piece_styles[styling_types.SPECIFIC][piece_types.BOLD][0][0]}></p>"
+            ),
+            ("./src/thebrainrot_blog/tests/testdata/test2.md",
+                f"<{piece_styles[styling_types.GLOBAL][piece_types.TITLE][0][0]} class='{piece_styles[styling_types.GLOBAL][piece_types.TITLE][0][1]}'><p>Test</p></{piece_styles[styling_types.GLOBAL][piece_types.TITLE][0][0]}>"
             )
+            
         ] 
 
         for markdown_path, expected_out in test_cases:
