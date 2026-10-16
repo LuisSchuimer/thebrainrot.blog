@@ -1,4 +1,15 @@
 # The Brainrot Blog
+## Posts
+**ToDo List**
+- create database construct
+  - Field names
+    - id: str
+    - title: str
+    - rendered html: str (cache)
+    - core markdown byte size or char count (to check if something changed): int
+- create article list view
+- implement a way to upload new posts to server over admin page
+- search algorithm to search for posts or certain keywords (database table for those)?
 ## Renderer
 **ToDo List**
 - [x] Envision a new system for actively and elegantly render to html code
