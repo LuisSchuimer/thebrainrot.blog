@@ -10,6 +10,7 @@
 - create article list view
 - implement a way to upload new posts to server over admin page
 - search algorithm to search for posts or certain keywords (database table for those)?
+
 ## Renderer
 **ToDo List**
 - [x] Envision a new system for actively and elegantly render to html code

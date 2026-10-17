@@ -1,19 +1,14 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <link href="{{ url_for("static", filename="css/output.css" ) }}"
-            rel="stylesheet">
-        <meta name="viewport" content="width=device-width" initial-scale="1.0">
-    </head>
+    {% include "components/headers.html" %}
 
     <body class="bg-neutral-100">
-        <div class="bg-neutral-700 w-full p-4 sticky top-0">
-            <h1 class="text-xl text-heading font-extrabold text-neutral-300">
-                The Brainrot Blog <span
-                    class="text-sm font-medium text-neutral-500">by Luis
-                    Schuimer</span>
-            </h1>
-        </div>
+        {% include "components/navbar.html" %}
         <div class="p-8 text-lg">
+            <div class="text-3xl font-bold">{{ post_meta_data.title }}</div>
+            <p class="text-sm font-medium text-neutral-800">By {{ post_meta_data.author }}</p>
+            <hr class="border-0 h-px my-4 bg-neutral-600">
+
             {% include "components/test.html" %}
         </div>
     </body>

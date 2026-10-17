@@ -12,14 +12,20 @@ app = Flask(__name__)
 
 limiter = Limiter(
     get_remote_ip_addr,
-    app=app
+    app=app,
+    storage_uri="memory://",
 )
 
 @app.route("/")
 def main(): return render_template("index.html")
 
-@app.route("/article")
-def article(): return render_template("article.html")
+@limiter.limit("1/minute")
+@app.route("/article/<id>")
+def article(id: str): 
+    return render_template("article.html", post_meta_data={
+        "title": "How I made this blog page",
+        "author": "Luis Schuimer"
+    })
 
 
 if __name__ == "__main__":
