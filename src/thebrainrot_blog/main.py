@@ -17,11 +17,19 @@ limiter = Limiter(
 )
 
 @app.route("/")
-def main(): return render_template("index.html")
+def main(): 
+    return render_template("index.html", posts=[
+        {
+            "title": "Test article",
+            "id": 1,
+            "author": "Jazz",
+            "abstract": "This is a test for future development"
+        }
+    ])
 
 @limiter.limit("1/minute")
 @app.route("/article/<id>")
-def article(id: str): 
+def show_post(id: str): 
     return render_template("article.html", post_meta_data={
         "title": "How I made this blog page",
         "author": "Luis Schuimer"

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-    {% include "components/headers.html" %}
+    {% include "components/headers_component.html" %}
 
     <body class="bg-neutral-100">
-        {% include "components/navbar.html" %}
+        {% include "components/navbar_component.html" %}
         <div class="w-full p-4 bg-neutral-50 rounded shadow-xl">
             <p>This design still looks <span class="font-bold">shit</span>
                 because of my frontend skills but it does not matter because we
@@ -12,41 +12,7 @@
                 development will include:</p>
         </div>
 
-        <div class="mx-auto grid sm:grid-cols-2 gap-4 p-8 justify-items-center">
-            <div class="max-w-sm rounded overflow-hidden shadow-2xl">
-                <div class="px-4 py-4 bg-neutral-50">
-                    <div class="font-medium text-xl">Articles about tech</div>
-                    <p class="text-gray-700 text-base">
-                        I will write about my own experiences and development
-                        processes to boost my productivity for projects in the
-                        near future.
-                    </p>
-                </div>
-            </div>
-
-            <div class="max-w-sm rounded overflow-hidden shadow-2xl">
-                <div class="px-4 py-4 bg-neutral-50">
-                    <div class="font-medium text-xl">100% human written
-                        code</div>
-                    <p class="text-gray-700 text-base">
-                        I find it funny and frightening at the same time that
-                        this is an achievement to be proud of.
-
-                    </p>
-                </div>
-            </div>
-
-            <div class="max-w-sm rounded overflow-hidden shadow-2xl">
-                <div class="px-4 py-4 bg-neutral-50">
-                    <div class="font-medium text-xl">Software demos</div>
-                    <p class="text-gray-700 text-base">
-                        Projects that act as a web-application will be available
-                        here and open for everyone to try out and use for
-                        themselves.
-                    </p>
-                </div>
-            </div>
-        </div>
+        {% include "components/post_view_component.html" %}
 
         <div class="w-full p-4 bg-neutral-50 rounded shadow-xl bottom-0">
             <p>Follow the development process on <a
