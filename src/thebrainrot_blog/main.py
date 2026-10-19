@@ -27,8 +27,8 @@ def main():
         }
     ])
 
-@limiter.limit("1/minute")
 @app.route("/article/<id>")
+@limiter.limit("10/second")
 def show_post(id: str): 
     return render_template("article.html", post_meta_data={
         "title": "How I made this blog page",
