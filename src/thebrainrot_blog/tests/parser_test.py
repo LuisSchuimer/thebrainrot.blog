@@ -1,13 +1,13 @@
 import unittest
 from typing import Tuple, Union
-from thebrainrot_blog.markdown_handler.parse_markdown import (
+from thebrainrot_blog.backend.markdown_handler.parse_markdown import (
     parse, 
     construct_line, 
     line, 
     piece,
     article
 )
-from thebrainrot_blog.markdown_handler.handler_config import (
+from thebrainrot_blog.backend.markdown_handler.handler_config import (
     piece_types, 
     styling_types, 
     data_types

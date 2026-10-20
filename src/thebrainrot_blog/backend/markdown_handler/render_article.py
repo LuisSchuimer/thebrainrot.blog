@@ -1,12 +1,12 @@
 from os import path
 from typing import Union, Tuple
 
-from thebrainrot_blog.markdown_handler.parse_markdown import (
+from thebrainrot_blog.backend.markdown_handler.parse_markdown import (
     parse, 
     article,
     line
 )
-from thebrainrot_blog.markdown_handler.handler_config import (
+from thebrainrot_blog.backend.markdown_handler.handler_config import (
     piece_styles,
     piece_types,
     styling_types,

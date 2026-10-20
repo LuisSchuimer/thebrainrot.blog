@@ -1,9 +1,9 @@
 import unittest
 from typing import Tuple
 
-from thebrainrot_blog.markdown_handler.render_article import render
+from thebrainrot_blog.backend.markdown_handler.render_article import render
 
-from thebrainrot_blog.markdown_handler.handler_config import (
+from thebrainrot_blog.backend.markdown_handler.handler_config import (
     piece_styles,
     styling_types,
     piece_types

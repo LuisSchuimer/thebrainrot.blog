@@ -10,6 +10,7 @@ dependencies = [
     "flask-limiter>=4.1.1",
     "pytest-check>=2.9.1",
     "pytailwindcss>=0.3.1",
+    "peewee>=4.5.3",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -24,10 +25,13 @@ dev-dependencies = []
 
 [tool.rye.scripts]
 "server" = "rye run python -m thebrainrot_blog.main"
-"parser" = "rye run python -m thebrainrot_blog.markdown_handler.parse_markdown"
-"renderer" = "rye run python -m thebrainrot_blog.markdown_handler.render_article"
+"parser" = "rye run python -m thebrainrot_blog.backend.markdown_handler.parse_markdown"
+"renderer" = "rye run python -m thebrainrot_blog.backend.markdown_handler.render_article"
+"db" = "rye run python -m thebrainrot_blog.backend.database.crud"
+
 "parser-test" = "rye run python -m unittest thebrainrot_blog.tests.parser_test -v"
 "renderer-test" = "rye run python -m unittest thebrainrot_blog.tests.renderer_test -v"
+
 "css-watch" = "rye run tailwindcss -i src/thebrainrot_blog/static/css/input.css -o src/thebrainrot_blog/static/css/output.css --watch"
 
 [tool.hatch.metadata]
