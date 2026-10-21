@@ -225,8 +225,5 @@ def parse(markdown_article_path: str) -> article | None:
     return current_article
 
 if __name__ == "__main__":
-    #out = parse("./README.md")
-    #print(out)
-    out = construct_line("[link](#test_case)", current_article=article({"#test_case": piece(piece_types.DUMMY)}))
-    print(out.content)
-    print([styling.style_type for styling in out.styling[styling_types.SPECIFIC]])
+    out = parse("./README.md")
+    print(out)

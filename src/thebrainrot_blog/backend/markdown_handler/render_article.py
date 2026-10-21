@@ -104,4 +104,4 @@ def render(markdown_path: str) -> None | str:
     return html_out
 
 if __name__ == "__main__":
-    print(open("./src/thebrainrot_blog/templates/components/test.html", "w").write(str(render("./test.md"))))
+    print(open("./src/thebrainrot_blog/templates/posts/db_test.html", "w").write(str(render("./test.md"))))

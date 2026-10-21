@@ -14,21 +14,25 @@ def db_create_post(
     title: str,
     author: str,
     content: str,
-    rendered_content: str,
-    markdown_file: str,
+    render_file_path: str,
+    markdown_file_path: str,
 ) -> Posts:
     return Posts.create( # type: ignore
         id=str(uuid4()),
         title=title,
         author=author,
         content=content,
-        rendered_content=rendered_content,
-        markdown_file=markdown_file
+        render_file=render_file_path,
+        markdown_file=markdown_file_path
     )
+
+def db_get_post(id: str) -> Posts | None:
+    return Posts.select().where(Posts.id==id).get() or None # type: ignore
 
 "Keyword from posts and the tokenizer x,y values"
 def db_create_keyword(word: str, x: int, y: int) -> Keywords | None:
-    if Keywords.get(word=word): return None # type: ignore
+    if Keywords.select().where(Keywords.word==word): return None # type: ignore
+
     return Keywords.create( # type: ignore
         word=word,
         x=x, y=y
@@ -41,5 +45,3 @@ def db_get_post_feed() -> list[dict[str, str]]:
         "title": post.title,
         "abstract": f"{post.content[:ABSTRACT_LEN]}..."
     } for post in Posts.select()] # type: ignore
-
-print(db_create_keyword(word="test", x=1, y=6))

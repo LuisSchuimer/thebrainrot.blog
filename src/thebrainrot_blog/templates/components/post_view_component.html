@@ -3,7 +3,7 @@
 
     <div class="w-full max-w-sm h-full rounded overflow-hidden shadow-2xl">
         <div class="h-full px-4 py-4 bg-neutral-50">
-            <div class="font-medium text-xl"><a href="{{ url_for("show_post", id=post.id) }}">{{ post.title }}</a></div>
+            <div class="font-medium text-xl"><a href="{{ url_for("show_post_mask", id=post.id) }}">{{ post.title }}</a></div>
             <div class="font-medium text-sm">By {{ post.author }}</div>
             <p class="text-gray-600 text-base">
                 {{ post.abstract }}

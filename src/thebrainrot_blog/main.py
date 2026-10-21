@@ -1,9 +1,11 @@
 from flask import (
     Flask,
-    render_template
+    render_template,
+    redirect
 )
 from flask_limiter import Limiter
 
+from thebrainrot_blog.backend.database.crud import *
 from thebrainrot_blog.utils import get_remote_ip_addr
 #from thebrainrot_blog.logger import logging
 
@@ -18,22 +20,23 @@ limiter = Limiter(
 
 @app.route("/")
 def main(): 
-    return render_template("index.html", posts=[
-        {
-            "title": "Test article",
-            "id": 1,
-            "author": "Jazz",
-            "abstract": "This is a test for future development"
-        }
-    ])
+    return render_template("index.html", posts=db_get_post_feed())
 
 @app.route("/article/<id>")
 @limiter.limit("10/second")
-def show_post(id: str): 
+def show_post_mask(id: str): 
+    if (post := db_get_post(id=id)) is None: return redirect("/")
     return render_template("article.html", post_meta_data={
-        "title": "How I made this blog page",
-        "author": "Luis Schuimer"
+        "id": post.id,
+        "author": post.author,
+        "title": post.title
     })
+
+@app.route("/content/<id>")
+@limiter.limit("10/second")
+def load_post_content(id: str):
+    if (post := db_get_post(id=id)) is None: return render_template("/posts/test.html")
+    return render_template(f"/posts/{post.render_file}")
 
 
 if __name__ == "__main__":

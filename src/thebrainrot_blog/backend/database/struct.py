@@ -23,7 +23,7 @@ class Posts(BaseModel):
     title = TextField()
     author = TextField()
     content = TextField() # Content as string
-    rendered_content = TextField() # Rendered content html
+    render_file = TextField() # File where rendered content is saved
     date = DateTimeField(default=datetime.now) # Creation date
 
 class Keywords(BaseModel):

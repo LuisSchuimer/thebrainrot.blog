@@ -9,7 +9,9 @@
             <p class="text-sm font-medium text-neutral-800">By {{ post_meta_data.author }}</p>
             <hr class="border-0 h-px my-4 bg-neutral-600">
 
-            {% include "components/test.html" %}
+            <div hx-get="{{ url_for("load_post_content", id=post_meta_data.id) }}" hx-trigger="load">
+                <img class="htmx-indicator" src="{{ url_for("static", filename="svg/spinner.svg") }}">
+            </div>
         </div>
     </body>
 
