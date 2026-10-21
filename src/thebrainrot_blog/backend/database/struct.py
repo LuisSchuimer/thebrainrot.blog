@@ -6,7 +6,8 @@ from peewee import (
     SqliteDatabase,
     Model,
     TextField,
-    DateTimeField
+    DateTimeField,
+    IntegerField
 )
 from datetime import datetime
 
@@ -18,15 +19,20 @@ class BaseModel(Model):
         database = db
 
 class Posts(BaseModel):
-    id = TextField(primary_key=True)
+    id = TextField(primary_key=True) # UUID 4 
     title = TextField()
     author = TextField()
-    content = TextField()
-    rendered_content = TextField()
-    date = DateTimeField(default=datetime.now)
+    content = TextField() # Content as string
+    rendered_content = TextField() # Rendered content html
+    date = DateTimeField(default=datetime.now) # Creation date
+
+class Keywords(BaseModel):
+    word = TextField(primary_key=True) # Keyword as str
+    x = IntegerField() # X value from tokenizer
+    y = IntegerField() # Y value from tokenizer
 
 "Builds the database with created tables and rows"
 def build() -> SqliteDatabase:
     db.connect()
-    db.create_tables([Posts]) # type: ignore
+    db.create_tables([Posts, Keywords]) # type: ignore
     return db
