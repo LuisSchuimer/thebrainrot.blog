@@ -13,4 +13,5 @@ wheels/
 requirements-dev.lock
 settings.json
 
-test.md
+# env
+.env

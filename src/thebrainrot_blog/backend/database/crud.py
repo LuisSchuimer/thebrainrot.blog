@@ -3,12 +3,10 @@ from thebrainrot_blog.backend.database.struct import (
     Posts,
     Keywords
 )
+from thebrainrot_blog.env import ABSTRACT_LEN
 from uuid import uuid4
 
 db = build()
-
-#! Later in config file
-ABSTRACT_LEN: int = 50
 
 def db_create_post(
     title: str,
