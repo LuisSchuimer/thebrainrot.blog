@@ -47,6 +47,8 @@ pluggy==1.6.0
     # via pytest
 pygments==2.21.0
     # via pytest
+pyjwt==2.15.1
+    # via thebrainrot-blog
 pytailwindcss==0.3.1
     # via thebrainrot-blog
 pytest==9.1.1

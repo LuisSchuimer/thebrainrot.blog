@@ -6,11 +6,15 @@ from flask import (
 from flask_limiter import Limiter
 
 from thebrainrot_blog.backend.database.crud import *
-from thebrainrot_blog.utils import get_remote_ip_addr
-#from thebrainrot_blog.logger import logging
-
+from thebrainrot_blog.env import SERVER_SECRET
+from thebrainrot_blog.utils import (
+    get_remote_ip_addr,
+    #set_jwt_cookie,
+    login_required # type: ignore 
+)
 
 app = Flask(__name__)
+app.secret_key = SERVER_SECRET
 
 limiter = Limiter(
     get_remote_ip_addr,
@@ -37,6 +41,12 @@ def show_post_mask(id: str):
 def load_post_content(id: str):
     if (post := db_get_post(id=id)) is None: return render_template("/posts/test.html")
     return render_template(f"/posts/{post.render_file}")
+
+@app.route("/admin")
+@limiter.limit("1/second")
+@login_required
+def admin():
+    return render_template("admin.html")
 
 
 if __name__ == "__main__":

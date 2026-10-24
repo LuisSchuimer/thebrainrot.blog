@@ -12,6 +12,7 @@ dependencies = [
     "pytailwindcss>=0.3.1",
     "peewee>=4.5.3",
     "dotenv>=0.9.9",
+    "pyjwt>=2.15.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
