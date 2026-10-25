@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+"If the side is running in production or not (when production, the server expects a cloudflare setup)"
+PRODUCTION: bool = bool(str(getenv("PRODUCTION")))
+
 "Number of chars that can be included in a article abstract"
 ABSTRACT_LEN: int = int(str(getenv("ABSTRACT_LEN")))
 
