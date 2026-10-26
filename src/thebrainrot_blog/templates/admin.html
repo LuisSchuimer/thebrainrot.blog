@@ -8,5 +8,24 @@
         <div class="w-full p-4 bg-neutral-50 rounded shadow-xl">
             <h1 class="text-center font-bold text-lg">Admin Settings</h1>
         </div>
+
+        <div class="mx-auto grid gap-4 p-8 justify-items-center">
+            <div class="w-full p-4 bg-neutral-50 rounded shadow-xl">
+                <p class="font-bold text-lg">New Post</p>
+                <hr>
+                <form action="{{ url_for("upload_new_post") }}", method="post" class="flex flex-col items-center">
+                    <label for="title" class="font-semibold">Title: </label>
+                    <input class="border rounded" type="text" id="title" name="title"> <br>
+                    <label for="author" class="font-semibold">Author: </label>
+                    <input class="border rounded" type="text" id="author" name="author"> <br>
+                    <label for="file" class="font-semibold">Markdown File: </label>
+                    <input type=file name=file>
+                    <input class="rounded bg-neutral-400 px-2 py-1 font-semibold cursor-pointer hover:bg-neutral-300" type="submit" value="Login">
+                </form>
+            </div>
+            <div class="w-full p-4 bg-neutral-50 rounded shadow-xl">
+                Test
+            </div>
+        </div>
     </body>
 </html>

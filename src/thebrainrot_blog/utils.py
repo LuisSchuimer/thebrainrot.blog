@@ -8,14 +8,14 @@ from jwt import decode, encode # type: ignore
 from datetime import datetime, timedelta
 from typing import Tuple
 
-from thebrainrot_blog.env import SERVER_SECRET, PRODUCTION
+from thebrainrot_blog.env import SERVER_SECRET, IS_PRODUCTION
 
 """
 returns connecting ip addr over cloudflare (if server setup configured as 'production') 
 or normal request ip addr (configured as 'non-production')"
 """
 def get_remote_ip_addr() -> str:
-    return request.headers.get("Cf-Connecting-Ip") or "" if PRODUCTION else request.remote_addr or ""
+    return request.headers.get("Cf-Connecting-Ip") or "" if IS_PRODUCTION else request.remote_addr or ""
 
 "Shifts index to be correct after removal of multpile others"
 def index_offset(to_be_offset: Tuple[int,int], indexes_to_be_removed: list[Tuple[int,int]]) -> Tuple[int,int]:
