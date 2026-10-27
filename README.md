@@ -15,22 +15,18 @@
 **ToDo List**
 - [x] Envision a new system for actively and elegantly render to html code
   - **Specific styling**
-    1. Goes through every char of content
-    2. Looks for styling types associated **(created, ending or still active at char)**
-    3. Adds char **(with html element for styling to article html)**
-    4. Repeat
+    1. Go through applied stylings and copy content with html styling to a html out
+    2. Keep track of copied indexes and adjust later ones with index_offset() from utils
+    3. Copy left over pieces with no styling to output
+    4. Append to general html out
   - **Global styling**
-    1. Go through every global styling
-    2. Add needed html
-    3. Close html element when line content is added
-    4. Also check for blockqoutes and bullet points that are multiline, if they need to be closed
+    1. Tree structure for multi-line stylings (could be returned by the parser)
+      - They include piece_type as key and lines or further multi-line stylings (that are nested) as values
+    2. Go through the tree and add stylings based on tree structure (maybe a multithread task)
+    3. Compare location of line in the tree to open and close previous styling pieces
+    4. Add to html out
 - [x] ~~Think about data structures for new handler_config file~~
-- [ ] **Make code more elegant and fast**
-  - Chars should not be added and checked all on their own (to slow)
-    - Maybe a system that returns a whole tree of styling and the content that can be directly added to the output html
-    - **Important**: Shouldn't be indpendant on index offset!
-  - Better Implementation of multiy line styles (blockquote and bullet)
-    - Should be considered in parser by looking at previous global styling patterns
+- [ ] **Make code more elegant and fast** -> Look at new render system structure
 - Add support for more styling types
   - [x] Highlight (==)
   - [x] Strikethrough (~~) 

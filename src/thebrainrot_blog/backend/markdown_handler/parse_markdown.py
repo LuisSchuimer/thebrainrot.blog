@@ -24,6 +24,7 @@ class piece:
         self.style_type = style_type
         self.index = index
         self.data = data
+
 class line:
     def __init__(self,
         content: str = ""

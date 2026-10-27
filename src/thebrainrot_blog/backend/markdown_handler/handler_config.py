@@ -40,6 +40,7 @@ class styling_association(Enum):
     STARTS = "starts"
     ENDS = "ends"
     CONTAINS = "contains"
+
 class data_types(Enum):
     """
         data types that can be used on specific styling types that 
