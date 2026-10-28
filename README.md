@@ -25,6 +25,11 @@
     2. Go through the tree and add stylings based on tree structure (maybe a multithread task)
     3. Compare location of line in the tree to open and close previous styling pieces
     4. Add to html out
+  - **Tree structure**
+    - starts at origin every time a new line is constructed
+    - moves from that point to desired note and saves line there
+    - all notes that are not visited are inmutable after that point
+      - new note need to be opened if same styling pattern is used later
 - [x] ~~Think about data structures for new handler_config file~~
 - [ ] **Make code more elegant and fast** -> Look at new render system structure
 - Add support for more styling types

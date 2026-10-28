@@ -53,6 +53,11 @@ class data_types(Enum):
     TITLE_SIZE = "title_size"
     BLOCKQUOTE_DEEPNESS = "blockquote_deepness"
 
+"Styling piece objects that can occur over multiple lines"
+multiline_styling_pieces: list[piece_types] = [
+    piece_types.BLOCKQUOTE,
+    piece_types.BULLET
+]
 
 "Regex identification codes for all piece types"
 piece_seqences: dict[styling_types, dict[piece_types, str]] = {

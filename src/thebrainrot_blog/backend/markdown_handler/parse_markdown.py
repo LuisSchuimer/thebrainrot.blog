@@ -11,7 +11,8 @@ from thebrainrot_blog.backend.markdown_handler.handler_config import (
     piece_types,
     piece_seqences,
     styling_types,
-    data_types
+    data_types,
+    multiline_styling_pieces
 )
 from thebrainrot_blog.utils import index_offset
 
@@ -81,7 +82,8 @@ class article:
     def __init__(self,
         reference_links: dict[str, piece] = dict() # Links inside the given article
     ) -> None:
-        self.lines: list[line] = list()
+        "line tree construct"
+        self.lines: list[Union[line, dict[piece_types, Union[line, dict[piece_types, type]]]]] = list()
         self.reference_links = reference_links
 
     def reference_link_exists(self, reference: str) -> bool: return reference in self.reference_links.keys()
@@ -221,7 +223,14 @@ def parse(markdown_article_path: str) -> article | None:
 
     with open(markdown_article_path, encoding="utf8", mode="r") as article_file:
         markdown_file: list[str] = [line_content.strip() for line_content in article_file]
-    for current_line in markdown_file: current_article.lines.append(construct_line(current_line, current_article))
+
+    for current_line in markdown_file: 
+        constructed_line = construct_line(current_line, current_article)
+
+        for applied_multiline_styling in [styling.style_type for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
+            pass
+
+        current_article.lines.append(constructed_line)
 
     return current_article
 
