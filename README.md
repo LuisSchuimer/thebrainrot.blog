@@ -27,9 +27,14 @@
     4. Add to html out
   - **Tree structure**
     - starts at origin every time a new line is constructed
-    - moves from that point to desired note and saves line there
+    - moves from that point to desired node and saves line there
     - all notes that are not visited are inmutable after that point
-      - new note need to be opened if same styling pattern is used later
+      - new node need to be opened if same styling pattern is used later
+    - **Tree search**
+      - Indexes of included lines in a node are saved with node styling type
+      - Iterate over those indexes to find ruff location and repeat until index is found
+        - Save those included lines and remember so that another search is not needed
+        - -> *Should be o(log n) or (idealy) o(n)*
 - [x] ~~Think about data structures for new handler_config file~~
 - [ ] **Make code more elegant and fast** -> Look at new render system structure
 - Add support for more styling types
