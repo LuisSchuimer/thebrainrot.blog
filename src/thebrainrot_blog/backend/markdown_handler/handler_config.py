@@ -32,15 +32,6 @@ class styling_types(Enum):
     GLOBAL = "global"
     SPECIFIC = "specific"
 
-class styling_association(Enum):
-    """
-        Defines the association a piece of text has to a styling type
-    """
-
-    STARTS = "starts"
-    ENDS = "ends"
-    CONTAINS = "contains"
-
 class data_types(Enum):
     """
         data types that can be used on specific styling types that 
@@ -51,7 +42,10 @@ class data_types(Enum):
     CHECKED = "checked"
     HAS_TASK = "has_tast"
     TITLE_SIZE = "title_size"
-    BLOCKQUOTE_DEEPNESS = "blockquote_deepness"
+
+    "For article tree construct"
+    INDEX = "index"
+    LINES = "lines"
 
 "Styling piece objects that can occur over multiple lines"
 multiline_styling_pieces: list[piece_types] = [
