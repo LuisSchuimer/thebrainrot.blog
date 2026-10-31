@@ -27,7 +27,13 @@
     4. Add to html out
   - **Tree structure**
     - starts at origin every time a new line is constructed
-    - moves from that point to desired node and saves line there
+    - moves from that point to desired node and saves line there (How to develop this system without having show code?)
+      - **Problem:**
+        -  Key-Value structure doesn't allow multiple of the same keys
+        - *How can you write a system (not relyant on o(n^2) code) that can find a open type fast?*
+      - **Solution?:**
+        - A lookup table of open styles and different groupes of lines inside that as a dict (index as key)
+          - Would mean a o(n) algorithm (n is number of lines with multiline styles)
     - all notes that are not visited are inmutable after that point
       - new node need to be opened if same styling pattern is used later
     - **Tree search**
