@@ -37,8 +37,8 @@
     - all notes that are not visited are inmutable after that point
       - new node need to be opened if same styling pattern is used later
     - **Tree search**
-      - Indexes of included lines in a node are saved with node styling type
-      - Iterate over those indexes to find ruff location and repeat until index is found
+      - Indexes of included lines or open styles are located as a key value
+      - Iterate over those indexes to find ruff location and repeat until exact index is found
         - Save those included lines and remember so that another search is not needed
         - -> *Should be o(log n) or (idealy) o(n)*
 - [x] ~~Think about data structures for new handler_config file~~
