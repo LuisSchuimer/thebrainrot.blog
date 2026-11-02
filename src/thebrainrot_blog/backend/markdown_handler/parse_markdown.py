@@ -83,7 +83,7 @@ class article:
         reference_links: dict[str, piece] = dict() # Links inside the given article
     ) -> None:
         "line tree construct"
-        self.lines: list[Union[line, dict[piece_types, type]]] = list()
+        self.lines: dict[Tuple[int, Union[int, None]], Union[line, type]] = dict()
         self.reference_links = reference_links
 
     def reference_link_exists(self, reference: str) -> bool: return reference in self.reference_links.keys()
@@ -226,7 +226,7 @@ def parse(markdown_article_path: str) -> article | None:
     for count, current_line in enumerate(markdown_file): 
         constructed_line = construct_line(current_line, current_article)
 
-        path_taken: list[Union[line, dict[piece_types, type]]] = current_article.lines
+        path_taken: dict[Tuple[int, Union[int, None]], Union[line, type]] = current_article.lines
         for applied_multiline_styling in [styling.style_type for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
             pass
 
