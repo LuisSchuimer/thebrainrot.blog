@@ -5,7 +5,7 @@ Entirely thought out, written and debugged by a human
 
 from os import path
 import re
-from typing import Union, Tuple
+from typing import Union, Tuple, Any
 
 from thebrainrot_blog.backend.markdown_handler.handler_config import (
     piece_types,
@@ -83,7 +83,8 @@ class article:
         reference_links: dict[str, piece] = dict() # Links inside the given article
     ) -> None:
         "line tree construct"
-        self.lines: dict[Tuple[int, Union[int, None]], Union[line, type]] = dict()
+        self.article_tree: dict[Tuple[int, Union[int, None]], Any]
+        self.lines: list[line] = list()
         self.reference_links = reference_links
 
     def reference_link_exists(self, reference: str) -> bool: return reference in self.reference_links.keys()
@@ -217,6 +218,9 @@ def construct_line(line_content: str, current_article: article = article()) -> l
     return current_line
 
 def parse(markdown_article_path: str) -> article | None:
+    def open_tree_note(line_count: int, tree_path: dict[Tuple[int, Union[int, None]], Any]) -> Tuple[int, Union[int, None]]:
+        return [key for key in tree_path if key[0] < line_count and key[1] is None][0]
+
     current_article: article = article()
     if not path.isfile(markdown_article_path): return None
 
@@ -226,10 +230,12 @@ def parse(markdown_article_path: str) -> article | None:
     for count, current_line in enumerate(markdown_file): 
         constructed_line = construct_line(current_line, current_article)
 
-        path_taken: dict[Tuple[int, Union[int, None]], Union[line, type]] = current_article.lines
+        #! Test data
+        tree_path: dict[Tuple[int, Union[int, None]], Any] = {
+            (0, None): piece_types.BLOCKQUOTE
+        }
         for applied_multiline_styling in [styling.style_type for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
-            pass
-
+            print(open_tree_note(line_count=count, tree_path=tree_path))
 
         current_article.lines.append(constructed_line)
 
