@@ -44,8 +44,9 @@ class data_types(Enum):
     TITLE_SIZE = "title_size"
 
     "For article tree construct"
-    INDEX = "index"
-    LINES = "lines"
+    NODE = "node"
+    LINE = "line"
+    NONE = "none"
 
 "Styling piece objects that can occur over multiple lines"
 multiline_styling_pieces: list[piece_types] = [

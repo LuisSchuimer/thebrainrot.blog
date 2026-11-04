@@ -28,9 +28,11 @@ class piece:
 
 class line:
     def __init__(self,
-        content: str = ""
+        content: str = "",
+        article_line: int = 0
     ):
         self.content: str = content
+        self.article_line: int = article_line
         self.data: dict[data_types, Union[str, int]] = dict()
         self.styling: dict[styling_types, list[piece]] = {
             styling_types.GLOBAL: list(),
@@ -83,14 +85,33 @@ class article:
         reference_links: dict[str, piece] = dict() # Links inside the given article
     ) -> None:
         "line tree construct"
-        self.article_tree: dict[Tuple[int, Union[int, None]], Any]
-        self.lines: list[line] = list()
+        self.article_tree: list[Union[line, tree_node]] = list()
         self.reference_links = reference_links
 
     def reference_link_exists(self, reference: str) -> bool: return reference in self.reference_links.keys()
 
-def construct_line(line_content: str, current_article: article = article()) -> line:
-    current_line: line = line()
+"node for the article tree"
+class tree_node:
+    def __init__(self,
+        styling_type: piece_types,
+        indexes: list[Union[int, None]] = [None, None],
+        children: dict[Tuple[int, Union[int, None]], Union[tree_node, line]] = dict() # type: ignore
+    ):
+        self.styling_type: piece_types = styling_type
+        self.indexes: list[Union[int, None]] = indexes
+
+        # Can be a further line or tree node
+        self.children: dict[Tuple[int, Union[int, None]], Union[tree_node, line]] = children
+
+    def get_child_by_index(self, to_find: int) -> Tuple[data_types, Union[tree_node, line, None]]: # type: ignore
+        for child in [self.children[index] for index in self.children if index[0] < to_find and index[1] is None]:
+            if isinstance(child, tree_node): return (data_types.NODE, child)
+            else: return (data_types.LINE, child)
+
+        return (data_types.NONE, None)
+
+def construct_line(line_content: str, current_article: article = article(), article_line: int = 0) -> line:
+    current_line: line = line(article_line=article_line)
 
     current_line_content_list: list[str] = line_content.split()
     for seq in line_content.split():
@@ -218,7 +239,7 @@ def construct_line(line_content: str, current_article: article = article()) -> l
     return current_line
 
 def parse(markdown_article_path: str) -> article | None:
-    def open_tree_note(line_count: int, tree_path: dict[Tuple[int, Union[int, None]], Any]) -> Tuple[int, Union[int, None]]:
+    def open_tree_note(line_count: int, tree_path: dict[Tuple[int, Union[int, None]], Any]) -> tree_node:
         return [key for key in tree_path if key[0] < line_count and key[1] is None][0]
 
     current_article: article = article()
@@ -231,11 +252,11 @@ def parse(markdown_article_path: str) -> article | None:
         constructed_line = construct_line(current_line, current_article)
 
         #! Test data
-        tree_path: dict[Tuple[int, Union[int, None]], Any] = {
-            (0, None): piece_types.BLOCKQUOTE
+        tree_path: dict[Tuple[int, Union[int, None]], Union[tree_node, line]] = {
+            (0, None): tree_node(styling_type=piece_types.BLOCKQUOTE)
         }
         for applied_multiline_styling in [styling.style_type for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
-            print(open_tree_note(line_count=count, tree_path=tree_path))
+            ...
 
         current_article.lines.append(constructed_line)
 
