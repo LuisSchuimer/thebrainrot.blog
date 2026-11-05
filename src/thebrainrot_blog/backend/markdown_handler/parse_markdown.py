@@ -5,7 +5,7 @@ Entirely thought out, written and debugged by a human
 
 from os import path
 import re
-from typing import Union, Tuple, Any
+from typing import Union, Tuple
 
 from thebrainrot_blog.backend.markdown_handler.handler_config import (
     piece_types,
@@ -85,7 +85,7 @@ class article:
         reference_links: dict[str, piece] = dict() # Links inside the given article
     ) -> None:
         "line tree construct"
-        self.article_tree: list[Union[line, tree_node]] = list()
+        self.article_tree: tree_node = tree_node()
         self.reference_links = reference_links
 
     def reference_link_exists(self, reference: str) -> bool: return reference in self.reference_links.keys()
@@ -93,18 +93,21 @@ class article:
 "node for the article tree"
 class tree_node:
     def __init__(self,
-        styling_type: piece_types,
+        styling_type: Union[piece_types, None] = None,
         indexes: list[Union[int, None]] = [None, None],
         children: dict[Tuple[int, Union[int, None]], Union[tree_node, line]] = dict() # type: ignore
     ):
-        self.styling_type: piece_types = styling_type
+        self.styling_type: Union[piece_types, None] = styling_type
         self.indexes: list[Union[int, None]] = indexes
 
         # Can be a further line or tree node
         self.children: dict[Tuple[int, Union[int, None]], Union[tree_node, line]] = children
 
-    def get_child_by_index(self, to_find: int) -> Tuple[data_types, Union[tree_node, line, None]]: # type: ignore
-        for child in [self.children[index] for index in self.children if index[0] < to_find and index[1] is None]:
+    def get_child_by_index(self, to_find: int, find_only_closed: bool = False) -> Tuple[data_types, Union[tree_node, line, None]]:
+        for child in [self.children[index] for index in self.children 
+                if index[0] <= to_find and (index[1] is None if find_only_closed else index[1] is not None)
+            ]:
+
             if isinstance(child, tree_node): return (data_types.NODE, child)
             else: return (data_types.LINE, child)
 
@@ -121,23 +124,23 @@ def construct_line(line_content: str, current_article: article = article(), arti
             # If styling is locked, continue to next
             if current_styling_pattern in current_line.invalid_global_styling_sequences(): continue
             found_pattern = re.search(piece_seqences[styling_types.GLOBAL][current_styling_pattern], seq)
+            if not found_pattern: continue 
 
-            if found_pattern: 
-                seq_valid = True
-                current_line_content_list.pop(0)
+            seq_valid = True
+            current_line_content_list.pop(0)
 
-                match current_styling_pattern:
-                    case piece_types.BLOCKQUOTE: 
-                        for _ in range(len(seq)): 
-                            current_line.append_styling_piece(piece_type=piece_types.BLOCKQUOTE)
+            match current_styling_pattern:
+                case piece_types.BLOCKQUOTE: 
+                    for _ in range(len(seq)): 
+                        current_line.append_styling_piece(piece_type=piece_types.BLOCKQUOTE)
 
-                    case piece_types.TITLE: 
-                        current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: len(seq)})
+                case piece_types.TITLE: 
+                    current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: len(seq)})
 
-                    case piece_types.BULLET: current_line.append_styling_piece(piece_type=piece_types.BULLET, data={data_types.HAS_TASK: False})
+                case piece_types.BULLET: current_line.append_styling_piece(piece_type=piece_types.BULLET, data={data_types.HAS_TASK: False})
 
-                    case _: current_line.append_styling_piece(piece_type=current_styling_pattern)
-                break
+                case _: current_line.append_styling_piece(piece_type=current_styling_pattern)
+            break
 
         # If no valid pattern found: stop searching global styling
         if not seq_valid: break
@@ -239,9 +242,6 @@ def construct_line(line_content: str, current_article: article = article(), arti
     return current_line
 
 def parse(markdown_article_path: str) -> article | None:
-    def open_tree_note(line_count: int, tree_path: dict[Tuple[int, Union[int, None]], Any]) -> tree_node:
-        return [key for key in tree_path if key[0] < line_count and key[1] is None][0]
-
     current_article: article = article()
     if not path.isfile(markdown_article_path): return None
 
@@ -252,13 +252,13 @@ def parse(markdown_article_path: str) -> article | None:
         constructed_line = construct_line(current_line, current_article)
 
         #! Test data
-        tree_path: dict[Tuple[int, Union[int, None]], Union[tree_node, line]] = {
-            (0, None): tree_node(styling_type=piece_types.BLOCKQUOTE)
-        }
+        current_article.article_tree.children[(1, 4)] = tree_node(styling_type=piece_types.BLOCKQUOTE,children={(2, None): tree_node(styling_type=piece_types.BLOCKQUOTE)})
+        print(current_article.article_tree.get_child_by_index(to_find=1))
         for applied_multiline_styling in [styling.style_type for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
-            ...
+            found = current_article.article_tree.get_child_by_index(to_find=1, find_only_closed=True)
+            if found[0] in [data_types.NONE, data_types.LINE]: continue
 
-        current_article.lines.append(constructed_line)
+            #print(found[1].get_child_by_index(to_find=3, find_only_closed=True))
 
     return current_article
 
