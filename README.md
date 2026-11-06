@@ -34,6 +34,7 @@
       - **Solution?:**
         - A lookup table of open styles and different groupes of lines inside that as a dict (index as key)
           - Would mean a o(n) algorithm (n is number of lines with multiline styles)
+      - -> Implemented: tree_node class as primary node structure with find_children_by_index() function
     - all notes that are not visited are inmutable after that point
       - new node need to be opened if same styling pattern is used later
     - **Tree search**
@@ -41,6 +42,9 @@
       - Iterate over those indexes to find ruff location and repeat until exact index is found
         - Save those included lines and remember so that another search is not needed
         - -> *Should be o(log n) or (idealy) o(n)*
+  - **Tree building**
+    - *Problem*: tree node can be n deep -> building struture should support n deepness (path needs to be builded over multiple styling pieces) and searching requires saving the current node and continuing
+      - mem addresses can change when done wrong -> later adding the line as a child of a node at the wrong mem address
 - [x] ~~Think about data structures for new handler_config file~~
 - [ ] **Make code more elegant and fast** -> Look at new render system structure
 - Add support for more styling types
