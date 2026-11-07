@@ -45,6 +45,7 @@
   - **Tree building**
     - *Problem*: tree node can be n deep -> building struture should support n deepness (path needs to be builded over multiple styling pieces) and searching requires saving the current node and continuing
       - mem addresses can change when done wrong -> later adding the line as a child of a node at the wrong mem address
+    - *Solution*: Pointing the variable to the node in the styling tree
 - [x] ~~Think about data structures for new handler_config file~~
 - [ ] **Make code more elegant and fast** -> Look at new render system structure
 - Add support for more styling types
