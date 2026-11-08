@@ -95,23 +95,27 @@ class tree_node:
     def __init__(self,
         styling_type: Union[piece_types, None] = None,
         indexes: list[Union[int, None]] = [None, None],
-        children: dict[Tuple[int, Union[int, None]], Union[tree_node, line]] = dict() # type: ignore
+        child_nodes: dict[Tuple[int, Union[int, None]], tree_node] = dict(),
+        child_lines: dict[int, line] = dict()
     ):
         self.styling_type: Union[piece_types, None] = styling_type
         self.indexes: list[Union[int, None]] = indexes
 
         # Can be a further line or tree node
-        self.children: dict[Tuple[int, Union[int, None]], Union[tree_node, line]] = children
+        self.child_nodes: dict[Tuple[int, Union[int, None]], tree_node] = child_nodes
+        self.child_lines: dict[int, line] = child_lines
 
-    def get_child_by_index(self, to_find: int, find_only_closed: bool = False) -> Tuple[data_types, Union[tree_node, line, None]]:
-        for child in [self.children[index] for index in self.children 
+    def child_node_by_index(self, to_find: int, find_only_closed: bool = False) -> Tuple[data_types, Union[tree_node, line, None]]:
+        for child in [self.child_nodes[index] for index in self.child_nodes
                 if index[0] <= to_find and (index[1] is None if find_only_closed else index[1] is not None)
             ]:
-
-            if isinstance(child, tree_node): return (data_types.NODE, child)
-            else: return (data_types.LINE, child)
-
+            return (data_types.NODE, child)
         return (data_types.NONE, None)
+
+    def add_node(self, path: tree_node, to_add: tree_node) -> tree_node: 
+        if to_add.indexes[0] is None: return path
+        path.child_nodes[new_node := (to_add.indexes[0], to_add.indexes[1])] = to_add
+        return path.child_nodes[new_node]
 
 def construct_line(line_content: str, current_article: article = article(), article_line: int = 0) -> line:
     current_line: line = line(article_line=article_line)
@@ -251,17 +255,23 @@ def parse(markdown_article_path: str) -> article | None:
     for count, current_line in enumerate(markdown_file): 
         constructed_line = construct_line(current_line, current_article)
 
-        #! Test data
-        current_article.article_tree.children[(1, 4)] = tree_node(styling_type=piece_types.BLOCKQUOTE,children={(2, None): tree_node(styling_type=piece_types.BLOCKQUOTE)})
-        print(current_article.article_tree.get_child_by_index(to_find=1))
+        curr_path: tree_node = current_article.article_tree
         for applied_multiline_styling in [styling.style_type for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
-            found = current_article.article_tree.get_child_by_index(to_find=1, find_only_closed=True)
-            if found[0] in [data_types.NONE, data_types.LINE]: continue
+            child = curr_path.child_node_by_index(to_find=count)
 
-            #print(found[1].get_child_by_index(to_find=3, find_only_closed=True))
+            # match child type
+            match child[0]:
+                case data_types.NODE: curr_path = child[1] # type: ignore because child[1] and child[0] have relationship 
+                case data_types.NONE: 
+                    curr_path = current_article.article_tree.add_node(path=curr_path, to_add=tree_node(
+                        indexes=[count, None],
+                        styling_type=applied_multiline_styling
+                    ))
+                case _: pass
 
+        curr_path.child_lines[count] = constructed_line
     return current_article
 
 if __name__ == "__main__":
-    out = parse("./README.md")
+    out = parse("test.md")
     print(out)
