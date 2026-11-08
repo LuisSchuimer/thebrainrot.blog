@@ -3,9 +3,12 @@ Markdown to HTML parser as part of thebrainrot.blog written by Luis Schuimer
 Entirely thought out, written and debugged by a human
 """
 
+from __future__ import annotations
+
 from os import path
 import re
 from typing import Union, Tuple
+from dataclasses import dataclass, field
 
 from thebrainrot_blog.backend.markdown_handler.handler_config import (
     piece_types,
@@ -80,42 +83,37 @@ class line:
                 case _: continue
         return [] if len(self.styling[styling_types.GLOBAL]) == 0 else [piece_types.HORIZONTAL_RULES]
 
-class article:
-    def __init__(self,
-        reference_links: dict[str, piece] = dict() # Links inside the given article
-    ) -> None:
-        "line tree construct"
-        self.article_tree: tree_node = tree_node()
-        self.reference_links = reference_links
-
-    def reference_link_exists(self, reference: str) -> bool: return reference in self.reference_links.keys()
-
 "node for the article tree"
+@dataclass
 class tree_node:
-    def __init__(self,
-        styling_type: Union[piece_types, None] = None,
-        indexes: list[Union[int, None]] = [None, None],
-        child_nodes: dict[Tuple[int, Union[int, None]], tree_node] = dict(),
-        child_lines: dict[int, line] = dict()
-    ):
-        self.styling_type: Union[piece_types, None] = styling_type
-        self.indexes: list[Union[int, None]] = indexes
+    styling_type: Union[piece_types, None] = None
+    indexes: list[Union[int, None]] = field(default_factory=list[Union[int, None]])
 
-        # Can be a further line or tree node
-        self.child_nodes: dict[Tuple[int, Union[int, None]], tree_node] = child_nodes
-        self.child_lines: dict[int, line] = child_lines
+    # Can be a further line or tree node
+    child_nodes: dict[Tuple[int, Union[int, None]], 'tree_node'] = field(default_factory=dict[Tuple[int, Union[int, None]], 'tree_node'])
+    child_lines: dict[int, line] = field(default_factory= dict[int, line])
 
-    def child_node_by_index(self, to_find: int, find_only_closed: bool = False) -> Tuple[data_types, Union[tree_node, line, None]]:
+    def child_node_by_index(self, to_find: int, find_only_closed: bool = False) -> Tuple[data_types, Union[tree_node, None]]:
         for child in [self.child_nodes[index] for index in self.child_nodes
-                if index[0] <= to_find and (index[1] is None if find_only_closed else index[1] is not None)
+                if index[0] <= to_find and (index[1] is None if not find_only_closed else index[1] is not None)
             ]:
             return (data_types.NODE, child)
         return (data_types.NONE, None)
 
-    def add_node(self, path: tree_node, to_add: tree_node) -> tree_node: 
-        if to_add.indexes[0] is None: return path
-        path.child_nodes[new_node := (to_add.indexes[0], to_add.indexes[1])] = to_add
-        return path.child_nodes[new_node]
+    def add_node(self, path: tree_node, node_styling_type: piece_types, node_index: Tuple[int, Union[int, None]]) -> tree_node: 
+        path.child_nodes[node_index] = tree_node(
+            styling_type=node_styling_type,
+            indexes=list(node_index)
+        )
+        return path.child_nodes[node_index]
+
+@dataclass
+class article:
+    "line tree construct"
+    article_tree: tree_node = field(default_factory=tree_node)
+    reference_links: dict[str, piece] = field(default_factory=dict[str, piece])
+
+    def reference_link_exists(self, reference: str) -> bool: return reference in self.reference_links.keys()
 
 def construct_line(line_content: str, current_article: article = article(), article_line: int = 0) -> line:
     current_line: line = line(article_line=article_line)
@@ -262,11 +260,7 @@ def parse(markdown_article_path: str) -> article | None:
             # match child type
             match child[0]:
                 case data_types.NODE: curr_path = child[1] # type: ignore because child[1] and child[0] have relationship 
-                case data_types.NONE: 
-                    curr_path = current_article.article_tree.add_node(path=curr_path, to_add=tree_node(
-                        indexes=[count, None],
-                        styling_type=applied_multiline_styling
-                    ))
+                case data_types.NONE: curr_path = current_article.article_tree.add_node(path=curr_path, node_index=(count, None), node_styling_type=applied_multiline_styling)
                 case _: pass
 
         curr_path.child_lines[count] = constructed_line
