@@ -86,32 +86,44 @@ class line:
 "node for the article tree"
 @dataclass
 class tree_node:
+    parent: Union[tree_node, None] = None 
     styling_type: Union[piece_types, None] = None
-    indexes: list[Union[int, None]] = field(default_factory=list[Union[int, None]])
+    start_index: int = 0
+    indexes: list[int] = field(default_factory=list[int])
 
     # Can be a further line or tree node
     child_nodes: dict[Tuple[int, Union[int, None]], 'tree_node'] = field(default_factory=dict[Tuple[int, Union[int, None]], 'tree_node'])
     child_lines: dict[int, line] = field(default_factory= dict[int, line])
 
-    def child_node_by_index(self, to_find: int, find_only_closed: bool = False) -> Tuple[data_types, Union[tree_node, None]]:
+    def child_node_by_index(self, to_find: int, find_only_closed: bool = False) -> Tuple[data_types, Union['tree_node', None]]:
         for child in [self.child_nodes[index] for index in self.child_nodes
                 if index[0] <= to_find and (index[1] is None if not find_only_closed else index[1] is not None)
             ]:
             return (data_types.NODE, child)
         return (data_types.NONE, None)
 
-    def add_node(self, path: tree_node, node_styling_type: piece_types, node_index: Tuple[int, Union[int, None]]) -> tree_node: 
-        path.child_nodes[node_index] = tree_node(
+    def add_node(self, path: tree_node, node_styling_type: piece_types, node_start_index: int) -> tree_node:
+        path.child_nodes[(node_start_index, None)] = tree_node(
             styling_type=node_styling_type,
-            indexes=list(node_index)
+            start_index=node_start_index,
+            indexes=[self.start_index],
+            parent=path
         )
-        return path.child_nodes[node_index]
+        return path.child_nodes[(node_start_index, None)]
 
 @dataclass
 class article:
     "line tree construct"
     article_tree: tree_node = field(default_factory=tree_node)
     reference_links: dict[str, piece] = field(default_factory=dict[str, piece])
+
+    #def close_unused_tree_nodes(self, curr_line_count: int, path: Union[tree_node, None] = None) -> bool:
+        #for node in (path if path is not None else self.article_tree).child_nodes.values(): 
+        #    if curr_line_count in node.indexes and node.parent is None: continue
+
+        #   node.parent.child_nodes[(node.start_index, node.indexes[-1])] = node.parent.child_nodes[(node.start_index, None)]
+        #   del node.parent.child_nodes[(node.start_index, None)]
+        #return True
 
     def reference_link_exists(self, reference: str) -> bool: return reference in self.reference_links.keys()
 
@@ -254,13 +266,19 @@ def parse(markdown_article_path: str) -> article | None:
         constructed_line = construct_line(current_line, current_article)
 
         curr_path: tree_node = current_article.article_tree
+        curr_path.indexes.append(count)
+
+        #current_article.close_unused_tree_nodes(curr_line_count=count)
+
         for applied_multiline_styling in [styling.style_type for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
             child = curr_path.child_node_by_index(to_find=count)
 
             # match child type
             match child[0]:
-                case data_types.NODE: curr_path = child[1] # type: ignore because child[1] and child[0] have relationship 
-                case data_types.NONE: curr_path = current_article.article_tree.add_node(path=curr_path, node_index=(count, None), node_styling_type=applied_multiline_styling)
+                case data_types.NODE: 
+                    curr_path = child[1] # type: ignore because child[1] and child[0] have relationship
+                    curr_path.indexes.append(count)
+                case data_types.NONE: curr_path = current_article.article_tree.add_node(path=curr_path, node_start_index=count, node_styling_type=applied_multiline_styling)
                 case _: pass
 
         curr_path.child_lines[count] = constructed_line
