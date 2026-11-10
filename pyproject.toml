@@ -21,9 +21,11 @@ requires-python = ">= 3.14"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[dependency-groups]
+dev = []
+
 [tool.uv]
 managed = true
-dev-dependencies = []
 
 
 [tool.hatch.metadata]
