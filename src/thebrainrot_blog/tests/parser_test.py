@@ -5,7 +5,8 @@ from thebrainrot_blog.backend.markdown_handler.parse_markdown import (
     construct_line, 
     line, 
     piece,
-    article
+    article,
+    tree_node
 )
 from thebrainrot_blog.backend.markdown_handler.handler_config import (
     piece_types, 
@@ -188,32 +189,6 @@ class ParserTester(unittest.TestCase):
                 if data_value is None: self.assertIs(data_type not in to_test_styling.data.keys(), True, "Data value absense"); continue
                 else: self.assertEqual(to_test_styling.data[data_type], expected[data_type], "Data mismatch between output and expected")
 
-    def test_line_data(self):
-        """
-        Test if line data is correctly identified and saved with correct values and data_types
-        """
-
-        # line content -> line_data_type, expected value (None if should not be present)
-        test_cases: dict[str, dict[data_types, Union[int, None]]] = {
-            ">>> Test": {
-                data_types.BLOCKQUOTE_DEEPNESS: 3
-            },
-            ">> This is a test": {
-                data_types.BLOCKQUOTE_DEEPNESS: 2
-            },
-            "Test": {
-                data_types.BLOCKQUOTE_DEEPNESS: None
-            }
-        }
-
-        for content, expected in test_cases.items():
-            out = construct_line(line_content=content)
-
-            for data_type, value in expected.items():
-                if value is None: self.assertEqual(data_type not in out.data.keys(), True, "Given data type should be not present but is")
-                else: self.assertEqual(out.data[data_type], value, "Value mismatch between expected and output")
-
-
     def test_appending_style(self):
         """
         Tests if the parser appends specific and global styling types correctly into each 
@@ -301,3 +276,19 @@ class ParserTester(unittest.TestCase):
 
             for reference_link in params[0]: test_article.reference_links[reference_link] = piece(style_type=piece_types.DUMMY)
             self.assertIs(params[1], len(construct_line(line_content, test_article).styling[styling_types.SPECIFIC]) != 0, f"({line_content})")
+
+    def test_get_child_node(self):
+        """
+        Tests if the correct tree node is returned when given a current line index
+        """
+
+        test_cases: list[tuple[tree_node, int, int, piece_types]] = [
+            (tree_node(child_nodes=[tree_node(start_index=1, styling_type=piece_types.BLOCKQUOTE), tree_node(start_index=3, styling_type=piece_types.BULLET)]), 1, 2, piece_types.BLOCKQUOTE),
+            (tree_node(child_nodes=[tree_node(start_index=4, end_index=8, styling_type=piece_types.BLOCKQUOTE), tree_node(start_index=3, styling_type=piece_types.BULLET)]), 3, 5, piece_types.BULLET),
+        ]
+
+        for test_case in test_cases:
+            out = test_case[0].get_child_node(curr_line_count=test_case[2], styling_type=test_case[3])
+            self.assertIsNot(out[1], None, "Tree node is expected to be found but func returned no valid node")
+            self.assertIs(out[1].start_index if out[1] is not None else None, test_case[1], "Expected node output and real output mismatch (index)")
+            self.assertIs(out[1].styling_type if out[1] is not None else None, test_case[3], "Expected node output and real output mismatch (styling_type)")

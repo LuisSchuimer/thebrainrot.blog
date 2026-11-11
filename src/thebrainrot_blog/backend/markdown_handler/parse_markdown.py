@@ -97,24 +97,25 @@ class tree_node:
     child_nodes: list['tree_node'] = field(default_factory=list['tree_node'])
     child_lines: dict[int, line] = field(default_factory= dict[int, line])
 
-    #! Test for that
-    def child_node_by_index(self, curr_line_count: int, find_only_closed: bool = False) -> Tuple[data_types, Union['tree_node', None]]:
+    def get_child_node(self, curr_line_count: int, styling_type: piece_types, find_only_closed: bool = False) -> Tuple[data_types, Union['tree_node', None]]:
         for child in [node for node in self.child_nodes
-                if node.start_index < curr_line_count and node.end_index is (None if not find_only_closed else not None)
+                if node.start_index < curr_line_count and node.end_index is (not None if find_only_closed else None)
+                and styling_type == node.styling_type
             ]:
-            child.indexes.append(curr_line_count)
             return (data_types.NODE, child)
         return (data_types.NONE, None)
 
     def add_node(self, path: tree_node, node_styling_type: piece_types, node_start_index: int) -> tree_node:
-        path.indexes.append(node_start_index)
         path.child_nodes.append(tree_node(
             styling_type=node_styling_type,
             start_index=node_start_index,
-            indexes=[node_start_index],
             parent=path
         ))
         return path.child_nodes[-1]
+
+    def add_index(self, curr_line_index: int) -> None:
+        if curr_line_index not in self.indexes:
+            self.indexes.append(curr_line_index)
 
 @dataclass
 class article:
@@ -124,7 +125,7 @@ class article:
 
     def close_unused_tree_nodes(self, curr_line_count: int, path: Union[tree_node, None] = None) -> bool:
         for node in (path if path is not None else self.article_tree).child_nodes: 
-            if node.parent is None: continue # type: ignore because path has always indexes
+            if node.parent is None or node.end_index is not None: continue
 
             if curr_line_count not in node.indexes: node.end_index = node.indexes[-1]
             self.close_unused_tree_nodes(curr_line_count=curr_line_count, path=node)
@@ -273,10 +274,8 @@ def parse(markdown_article_path: str) -> article | None:
 
         curr_path: tree_node = current_article.article_tree
 
-        current_article.close_unused_tree_nodes(curr_line_count=count-1)
-
         for applied_multiline_styling in [styling.style_type for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
-            child = curr_path.child_node_by_index(curr_line_count=count)
+            child = curr_path.get_child_node(curr_line_count=count, styling_type=applied_multiline_styling)
 
             # match child type
             match child[0]:
@@ -284,7 +283,10 @@ def parse(markdown_article_path: str) -> article | None:
                 case data_types.NONE: curr_path = current_article.article_tree.add_node(path=curr_path, node_start_index=count, node_styling_type=applied_multiline_styling)
                 case _: pass
 
+            curr_path.add_index(curr_line_index=count)
+
         curr_path.child_lines[count] = constructed_line
+        current_article.close_unused_tree_nodes(curr_line_count=count)
     return current_article
 
 if __name__ == "__main__":

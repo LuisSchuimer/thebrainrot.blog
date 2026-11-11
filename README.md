@@ -13,39 +13,14 @@
 
 ## Renderer
 **ToDo List**
-- [x] Envision a new system for actively and elegantly render to html code
-  - **Specific styling**
-    1. Go through applied stylings and copy content with html styling to a html out
-    2. Keep track of copied indexes and adjust later ones with index_offset() from utils
-    3. Copy left over pieces with no styling to output
-    4. Append to general html out
-  - **Global styling**
-    1. Tree structure for multi-line stylings (could be returned by the parser)
-      - They include piece_type as key and lines or further multi-line stylings (that are nested) as values
-    2. Go through the tree and add stylings based on tree structure (maybe a multithread task)
-    3. Compare location of line in the tree to open and close previous styling pieces
-    4. Add to html out
-  - **Tree structure**
-    - starts at origin every time a new line is constructed
-    - moves from that point to desired node and saves line there (How to develop this system without having show code?)
-      - **Problem:**
-        -  Key-Value structure doesn't allow multiple of the same keys
-        - *How can you write a system (not relyant on o(n^2) code) that can find a open type fast?*
-      - **Solution?:**
-        - A lookup table of open styles and different groupes of lines inside that as a dict (index as key)
-          - Would mean a o(n) algorithm (n is number of lines with multiline styles)
-      - -> Implemented: tree_node class as primary node structure with find_children_by_index() function
-    - all notes that are not visited are inmutable after that point
-      - new node need to be opened if same styling pattern is used later
-    - **Tree search**
+- [x] ~~Envision a new system for actively and elegantly render to html code~~
+    -  [ ] **Tree search**
       - Indexes of included lines or open styles are located as a key value
       - Iterate over those indexes to find ruff location and repeat until exact index is found
         - Save those included lines and remember so that another search is not needed
         - -> *Should be o(log n) or (idealy) o(n)*
-  - **Tree building**
-    - *Problem*: tree node can be n deep -> building struture should support n deepness (path needs to be builded over multiple styling pieces) and searching requires saving the current node and continuing
-      - mem addresses can change when done wrong -> later adding the line as a child of a node at the wrong mem address
-    - *Solution*: Pointing the variable to the node in the styling tree
+- [x] ~~Build core tree structure~~ **(Further tests of functionality nessersary)**
+- [ ] Write tests for tree structure
 - [x] ~~Think about data structures for new handler_config file~~
 - [ ] **Make code more elegant and fast** -> Look at new render system structure
 - Add support for more styling types
