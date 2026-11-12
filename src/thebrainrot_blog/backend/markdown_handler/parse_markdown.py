@@ -102,6 +102,7 @@ class tree_node:
                 if node.start_index < curr_line_count and node.end_index is (not None if find_only_closed else None)
                 and styling_type == node.styling_type
             ]:
+            if child.end_index is not None and child.end_index >= curr_line_count: continue
             return (data_types.NODE, child)
         return (data_types.NONE, None)
 
@@ -287,8 +288,9 @@ def parse(markdown_article_path: str) -> article | None:
 
         curr_path.child_lines[count] = constructed_line
         current_article.close_unused_tree_nodes(curr_line_count=count)
+
     return current_article
 
 if __name__ == "__main__":
-    out = parse("test.md")
+    out = parse("./src/thebrainrot_blog/tests/testdata/article_tree_test2.md")
     print(out)

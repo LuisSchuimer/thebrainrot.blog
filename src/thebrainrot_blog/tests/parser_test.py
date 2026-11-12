@@ -282,6 +282,8 @@ class ParserTester(unittest.TestCase):
         Tests if the correct tree node is returned when given a current line index
         """
 
+        #! More tests
+        # tree nodes to be used as article tree (origin), to be found (starting index), to search (index), to search (piece type)
         test_cases: list[tuple[tree_node, int, int, piece_types]] = [
             (tree_node(child_nodes=[tree_node(start_index=1, styling_type=piece_types.BLOCKQUOTE), tree_node(start_index=3, styling_type=piece_types.BULLET)]), 1, 2, piece_types.BLOCKQUOTE),
             (tree_node(child_nodes=[tree_node(start_index=4, end_index=8, styling_type=piece_types.BLOCKQUOTE), tree_node(start_index=3, styling_type=piece_types.BULLET)]), 3, 5, piece_types.BULLET),
@@ -292,3 +294,54 @@ class ParserTester(unittest.TestCase):
             self.assertIsNot(out[1], None, "Tree node is expected to be found but func returned no valid node")
             self.assertIs(out[1].start_index if out[1] is not None else None, test_case[1], "Expected node output and real output mismatch (index)")
             self.assertIs(out[1].styling_type if out[1] is not None else None, test_case[3], "Expected node output and real output mismatch (styling_type)")
+
+    def test_article_tree_structure(self):
+        """
+        Tests the programs capabilities to organise all individual lines
+        in an tree format by grouping for multiline styles (found in handler config)
+        """
+
+        def search_line(path: tree_node, to_find: int, deepness: int = 1) -> tuple[bool, piece_types | None, int | None]:
+            for node in path.child_nodes:
+                if to_find not in node.indexes: continue
+                elif to_find in node.indexes and node.child_lines.get(to_find): return (True, node.styling_type, deepness)
+                else: 
+                    deepness += 1; child_search = search_line(path=node, to_find=to_find, deepness=deepness)
+                    if child_search[0]: return child_search
+                    else: continue
+
+            return (False, None, None)
+
+        test_cases: dict[str, list[tuple[piece_types, int]]] = {
+            "article_tree_test1.md": [
+                (piece_types.BLOCKQUOTE, 1),
+                (piece_types.BLOCKQUOTE, 1),
+                (piece_types.BLOCKQUOTE, 2),
+                (piece_types.BLOCKQUOTE, 2),
+                (piece_types.BLOCKQUOTE, 1),
+                (piece_types.BLOCKQUOTE, 3)
+            ],
+            "article_tree_test2.md": [
+                (piece_types.BLOCKQUOTE, 1),
+                (piece_types.BLOCKQUOTE, 2),
+                (piece_types.BLOCKQUOTE, 3),
+                (piece_types.BLOCKQUOTE, 4),
+                (piece_types.BLOCKQUOTE, 5),
+                (piece_types.BLOCKQUOTE, 4),
+                (piece_types.BLOCKQUOTE, 3),
+                (piece_types.BLOCKQUOTE, 2),
+                (piece_types.BLOCKQUOTE, 1),
+            ]
+        }
+
+        for file_path, line_locations in test_cases.items():
+            parser_out = parse(markdown_article_path=f"./src/thebrainrot_blog/tests/testdata/{file_path}")
+            self.assertNotEqual(parser_out, None, "Test file name not valid -> parser returned with none")
+            if parser_out is None: continue
+            for count, expected_location in enumerate(line_locations):
+                search_out = search_line(path=parser_out.article_tree, to_find=count)
+                self.assertNotEqual(search_out[0], False, "Line could not be found at expected loaction in tree structure")
+                if not search_out[0]: continue
+
+                self.assertEqual(expected_location[0], search_out[1], f"Line was found under unexpected node with styling type mismatch (was {search_out[1]}, should be {expected_location[0]})")
+                self.assertEqual(expected_location[1], search_out[2], f"Line was found under unexpected tree deepness (was {search_out[2]}, should be {expected_location[1]})")
