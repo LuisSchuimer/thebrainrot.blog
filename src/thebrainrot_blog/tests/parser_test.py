@@ -301,7 +301,9 @@ class ParserTester(unittest.TestCase):
         in an tree format by grouping for multiline styles (found in handler config)
         """
 
-        def search_line(path: tree_node, to_find: int, deepness: int = 1) -> tuple[bool, piece_types | None, int | None]:
+        def search_line(path: tree_node, to_find: int, deepness: int = 0) -> tuple[bool, piece_types | None, int | None]:
+            if path.child_lines.get(to_find): return (True, path.styling_type, deepness)
+            if deepness == 0: deepness += 1
             for node in path.child_nodes:
                 if to_find not in node.indexes: continue
                 elif to_find in node.indexes and node.child_lines.get(to_find): return (True, node.styling_type, deepness)
@@ -313,7 +315,7 @@ class ParserTester(unittest.TestCase):
             return (False, None, None)
 
         # test file name (under tests/testdata), expected styling type in node, expected tree deepness
-        test_cases: dict[str, list[tuple[piece_types, int]]] = {
+        test_cases: dict[str, list[tuple[piece_types | None, int]]] = {
             "article_tree_test1.md": [
                 (piece_types.BLOCKQUOTE, 1),
                 (piece_types.BLOCKQUOTE, 1),
@@ -332,6 +334,21 @@ class ParserTester(unittest.TestCase):
                 (piece_types.BLOCKQUOTE, 3),
                 (piece_types.BLOCKQUOTE, 2),
                 (piece_types.BLOCKQUOTE, 1),
+            ],
+            "article_tree_test3.md": [
+                (None, 0),
+                (None, 0),
+                (piece_types.BLOCKQUOTE, 1),
+                (piece_types.BLOCKQUOTE, 2),
+                (piece_types.BLOCKQUOTE, 3),
+                (piece_types.BLOCKQUOTE, 2),
+                (piece_types.BLOCKQUOTE, 1),
+                (None, 0),
+                (piece_types.BULLET, 1),
+                (piece_types.BULLET, 1),
+                (piece_types.BULLET, 1),
+                (piece_types.BULLET, 1),
+                (None, 0)
             ]
         }
 

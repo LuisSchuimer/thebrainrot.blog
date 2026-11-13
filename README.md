@@ -14,13 +14,13 @@
 ## Renderer
 **ToDo List**
 - [x] ~~Envision a new system for actively and elegantly render to html code~~
-    -  [ ] **Tree search**
+    -  [x] **Tree search** (only implemented in parser tests) maybe optimise (O(log n) to O(n)?)
       - Indexes of included lines or open styles are located as a key value
       - Iterate over those indexes to find ruff location and repeat until exact index is found
         - Save those included lines and remember so that another search is not needed
         - -> *Should be o(log n) or (idealy) o(n)*
-- [x] ~~Build core tree structure~~ **(Further tests of functionality nessersary)**
-- [ ] Write tests for tree structure
+- [x] ~~Build core tree structure~~
+- [x] Write tests for tree structure **(3 tests implemented -> more to come)**
 - [x] ~~Think about data structures for new handler_config file~~
 - [ ] **Make code more elegant and fast** -> Look at new render system structure
 - Add support for more styling types
