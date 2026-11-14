@@ -214,7 +214,7 @@ class ParserTester(unittest.TestCase):
                 self.assertEqual(styling_obj.style_type, params[0], "Styling not appended to SPECIFIC")
                 self.assertEqual(styling_obj.index, params[2], "Styling sindex mismatch")
 
-    def left_opened_styling(self):
+    def test_left_opened_styling(self):
         """
         Test that the program keeps a styling sequence in the content as long as
         it has not been closed yet

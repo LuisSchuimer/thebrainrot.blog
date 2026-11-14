@@ -10,8 +10,7 @@ from thebrainrot_blog.backend.markdown_handler.handler_config import (
     piece_styles,
     piece_types,
     styling_types,
-    data_types,
-    styling_association
+    data_types
 )
 
 def render(markdown_path: str) -> None | str:
