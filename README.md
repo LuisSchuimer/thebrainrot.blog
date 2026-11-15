@@ -46,7 +46,9 @@
   - [x] Highlight (==)
   - [x] Strikethrough (~~) 
   - [x] Horisontal rules
-  - [ ] Multi Bullet point 
+  - [ ] Multi Bullet point
+    - need a way to find out how many whitespaces where used between the last/first char of line content and curr seq
+    - content.split() filters out all whitespaces between words -> **not useful**
   - [ ] Images
   - [x] Task lists
   - [x] URLS
