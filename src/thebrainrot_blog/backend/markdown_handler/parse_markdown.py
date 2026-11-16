@@ -139,9 +139,10 @@ def construct_line(line_content: str, current_article: article = article(), arti
     current_line: line = line(article_line=article_line)
 
     current_line_content_list: list[str] = line_content.split()
-    for seq in line_content.split():
+    for seq in re.split(r"(\s+)", line_content):
         # Set value to detect if no styling pattern matches
         seq_valid = False
+        if seq.count(" ") != 0: continue
         for current_styling_pattern in piece_seqences[styling_types.GLOBAL]:
             # If styling is locked, continue to next
             if current_styling_pattern in current_line.invalid_global_styling_sequences(): continue
@@ -292,5 +293,5 @@ def parse(markdown_article_path: str) -> article | None:
     return current_article
 
 if __name__ == "__main__":
-    out = parse("./src/thebrainrot_blog/tests/testdata/article_tree_test2.md")
+    out = construct_line(line_content=">  - Test")
     print(out)
