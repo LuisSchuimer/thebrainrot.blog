@@ -7,7 +7,9 @@ This introductory line contains no blockquote or bullet styling.
 > Returning to level 1 blockquote.
 Here is another plain line separating the sections.
 - First single-level bullet point item.
-- Second single-level bullet point item.
-- Third single-level bullet point item.
-- Fourth single-level bullet point item.
+  - Second item.
+    - Third item.
+      - Fourth item.
+    - Item a
+  - Item b
 This concluding paragraph has standard text without any special prefixes.

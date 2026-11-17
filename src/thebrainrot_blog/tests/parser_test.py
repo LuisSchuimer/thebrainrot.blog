@@ -42,7 +42,7 @@ class ParserTester(unittest.TestCase):
             ("- ### Test", "Test"): [piece_types.BULLET, piece_types.TITLE],
             ("#### -Test", "-Test"): [piece_types.TITLE],
             ("> # Test", "Test"): [ piece_types.BLOCKQUOTE, piece_types.TITLE],
-            (">> - ## Test", "Test"): [piece_types.BLOCKQUOTE, piece_types.BLOCKQUOTE, piece_types.BULLET, piece_types.TITLE],
+            (">> - ## Test", "Test"): [piece_types.BLOCKQUOTE, piece_types.BULLET, piece_types.TITLE],
             ("*** ", ""): [piece_types.HORIZONTAL_RULES],
             ("> ***", "***"): [piece_types.BLOCKQUOTE]
         }
@@ -131,7 +131,6 @@ class ParserTester(unittest.TestCase):
                 self.assertEqual(expected_pieces[i]["styling_piece"], styling_piece.style_type, "Specific styling type mismatch")
                 self.assertEqual(expected_pieces[i]["index"], styling_piece.index, "Specific styling index mismatch")
 
-    #! Currently only for title pieces, later also for images, links etc. 
     def test_piece_data(self):
         """
         Tests if the parser correctly identifies and saves piece data correctly
@@ -168,15 +167,28 @@ class ParserTester(unittest.TestCase):
             },
             ("- [x] Test", styling_types.GLOBAL, piece_types.BULLET): {
                 data_types.CHECKED: True,
-                data_types.HAS_TASK: True
+                data_types.HAS_TASK: True,
+                data_types.DEEPNESS: 1
+            },
+            ("> - Test", styling_types.GLOBAL, piece_types.BULLET): {
+                data_types.CHECKED: None,
+                data_types.HAS_TASK: False,
+                data_types.DEEPNESS: 1
             },
             ("- Test", styling_types.GLOBAL, piece_types.BULLET): {
                 data_types.CHECKED: None,
                 data_types.HAS_TASK: False,
+                data_types.DEEPNESS: 1
+            },
+            ("  - Test", styling_types.GLOBAL, piece_types.BULLET): {
+                data_types.CHECKED: None,
+                data_types.HAS_TASK: False,
+                data_types.DEEPNESS: 2
             },
             ("- [ ] Test", styling_types.GLOBAL, piece_types.BULLET): {
                 data_types.CHECKED: False,
-                data_types.HAS_TASK: True
+                data_types.HAS_TASK: True,
+                data_types.DEEPNESS: 1
             }
         }
 
@@ -345,11 +357,25 @@ class ParserTester(unittest.TestCase):
                 (piece_types.BLOCKQUOTE, 1),
                 (None, 0),
                 (piece_types.BULLET, 1),
-                (piece_types.BULLET, 1),
-                (piece_types.BULLET, 1),
-                (piece_types.BULLET, 1),
+                (piece_types.BULLET, 2),
+                (piece_types.BULLET, 3),
+                (piece_types.BULLET, 4),
+                (piece_types.BULLET, 3),
+                (piece_types.BULLET, 2),
                 (None, 0)
-            ]
+            ],
+            "article_tree_test4.md": [
+                (None, 0),
+                (piece_types.BULLET, 1),
+                (piece_types.BULLET, 2),
+                (piece_types.BULLET, 2),
+                (piece_types.BLOCKQUOTE, 1),
+                (piece_types.BLOCKQUOTE, 2),
+                (piece_types.BULLET, 1),
+                (piece_types.BULLET, 2),
+                (piece_types.BULLET, 3),
+                (piece_types.BLOCKQUOTE, 1)
+            ]  
         }
 
         for file_path, line_locations in test_cases.items():
@@ -362,4 +388,4 @@ class ParserTester(unittest.TestCase):
                 if not search_out[0]: continue
 
                 self.assertEqual(expected_location[0], search_out[1], f"Line was found under unexpected node with styling type mismatch (was {search_out[1]}, should be {expected_location[0]})")
-                self.assertEqual(expected_location[1], search_out[2], f"Line was found under unexpected tree deepness (was {search_out[2]}, should be {expected_location[1]})")
+                self.assertEqual(expected_location[1], search_out[2], f"Line was found under unexpected tree deepness (was {search_out[2]}, should be {expected_location[1]} for {expected_location[0]})")

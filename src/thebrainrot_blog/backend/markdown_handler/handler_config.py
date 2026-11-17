@@ -40,6 +40,7 @@ class data_types(Enum):
 
     REFERENCE = "reference"
     CHECKED = "checked"
+    DEEPNESS = "deepness"
     HAS_TASK = "has_tast"
     TITLE_SIZE = "title_size"
 

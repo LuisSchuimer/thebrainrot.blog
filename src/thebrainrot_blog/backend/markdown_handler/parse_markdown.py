@@ -91,7 +91,7 @@ class tree_node:
     styling_type: Union[piece_types, None] = None           # Mulitpline styling type represented
     start_index: int = 0                                    # index where the multiline object starts
     end_index: Union[int, None] = None                      # index where multiline object ends (if not none -> tree node closed)
-    indexes: list[int] = field(default_factory=list[int])   # list of all indexes
+    indexes: list[int] = field(default_factory=list[int])    # list of all indexes
 
     # Can be a further line or tree node
     child_nodes: list['tree_node'] = field(default_factory=list['tree_node'])
@@ -139,10 +139,13 @@ def construct_line(line_content: str, current_article: article = article(), arti
     current_line: line = line(article_line=article_line)
 
     current_line_content_list: list[str] = line_content.split()
+    whitespaces: int = 0
     for seq in re.split(r"(\s+)", line_content):
         # Set value to detect if no styling pattern matches
         seq_valid = False
-        if seq.count(" ") != 0: continue
+        if len(seq) == 0: continue
+        if seq.count(" ") != 0: whitespaces += seq.count(" "); continue
+
         for current_styling_pattern in piece_seqences[styling_types.GLOBAL]:
             # If styling is locked, continue to next
             if current_styling_pattern in current_line.invalid_global_styling_sequences(): continue
@@ -153,20 +156,16 @@ def construct_line(line_content: str, current_article: article = article(), arti
             current_line_content_list.pop(0)
 
             match current_styling_pattern:
-                case piece_types.BLOCKQUOTE: 
-                    for _ in range(len(seq)): 
-                        current_line.append_styling_piece(piece_type=piece_types.BLOCKQUOTE)
-
-                case piece_types.TITLE: 
-                    current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: len(seq)})
-
-                case piece_types.BULLET: current_line.append_styling_piece(piece_type=piece_types.BULLET, data={data_types.HAS_TASK: False})
+                case piece_types.BLOCKQUOTE: current_line.append_styling_piece(piece_type=piece_types.BLOCKQUOTE, data={data_types.DEEPNESS: len(seq)})
+                case piece_types.TITLE: current_line.append_styling_piece(piece_type=piece_types.TITLE, data={data_types.TITLE_SIZE: len(seq)})
+                case piece_types.BULLET: current_line.append_styling_piece(piece_type=piece_types.BULLET, data={data_types.HAS_TASK: False, data_types.DEEPNESS: whitespaces // 2 +1})
 
                 case _: current_line.append_styling_piece(piece_type=current_styling_pattern)
             break
 
         # If no valid pattern found: stop searching global styling
-        if not seq_valid: break
+        if seq_valid: whitespaces = -1 # because styling types require one whitespace after
+        else: break
 
     current_line.content = " ".join(current_line_content_list)
 
@@ -269,23 +268,24 @@ def parse(markdown_article_path: str) -> article | None:
     if not path.isfile(markdown_article_path): return None
 
     with open(markdown_article_path, encoding="utf8", mode="r") as article_file:
-        markdown_file: list[str] = [line_content.strip() for line_content in article_file]
+        markdown_file: list[str] = [line_content.replace("\n", "") for line_content in article_file]
 
     for count, current_line in enumerate(markdown_file): 
         constructed_line = construct_line(current_line, current_article)
 
         curr_path: tree_node = current_article.article_tree
 
-        for applied_multiline_styling in [styling.style_type for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
-            child = curr_path.get_child_node(curr_line_count=count, styling_type=applied_multiline_styling)
+        for applied_multiline_styling in [styling for styling in constructed_line.styling[styling_types.GLOBAL] if styling.style_type in multiline_styling_pieces]:
+            for _ in range(applied_multiline_styling.data.get(data_types.DEEPNESS)): # type: ignore because all multiline styling types must have deepness (always int)
+                child = curr_path.get_child_node(curr_line_count=count, styling_type=applied_multiline_styling.style_type)
 
-            # match child type
-            match child[0]:
-                case data_types.NODE: curr_path = child[1] # type: ignore because child[1] and child[0] have relationship
-                case data_types.NONE: curr_path = current_article.article_tree.add_node(path=curr_path, node_start_index=count, node_styling_type=applied_multiline_styling)
-                case _: pass
+                # match child type
+                match child[0]:
+                    case data_types.NODE: curr_path = child[1] # type: ignore because child[1] and child[0] have relationship
+                    case data_types.NONE: curr_path = current_article.article_tree.add_node(path=curr_path, node_start_index=count, node_styling_type=applied_multiline_styling.style_type)
+                    case _: pass
 
-            curr_path.add_index(curr_line_index=count)
+                curr_path.add_index(curr_line_index=count)
 
         curr_path.child_lines[count] = constructed_line
         current_article.close_unused_tree_nodes(curr_line_count=count)
@@ -293,5 +293,5 @@ def parse(markdown_article_path: str) -> article | None:
     return current_article
 
 if __name__ == "__main__":
-    out = construct_line(line_content=">  - Test")
+    out = parse(markdown_article_path="./src/thebrainrot_blog/tests/testdata/article_tree_test4.md")
     print(out)
