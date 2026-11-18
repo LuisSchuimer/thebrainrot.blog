@@ -46,7 +46,7 @@ class line:
         for index in indexes: 
             for styling_type in self.styling[styling_types.SPECIFIC]:
                 if styling_type.index is None: continue
-                styling_type.index = index_offset(styling_type.index, indexes_to_be_removed=[index])
+                styling_type.index = index_offset(styling_type.index, indexes=[index])
 
             self.content = self.content[:index[0]] + self.content[index[1]:]
 
@@ -187,7 +187,7 @@ def construct_line(line_content: str, current_article: article = article(), arti
 
         if delete_indexes and indexes_to_delete is not None and prev_seq is not None:
             for index in indexes_to_delete: 
-                prev_seq.append(index_offset((index[0], index[1]), indexes_to_be_removed=prev_seq))
+                prev_seq.append(index_offset((index[0], index[1]), indexes=prev_seq))
                 current_line.delete_indexes_from_content(prev_seq[-1])
 
             return prev_seq
@@ -252,8 +252,8 @@ def construct_line(line_content: str, current_article: article = article(), arti
                     prev_seq = handle_new_styling_piece(
                         current_styling_pattern=current_styling_pattern,
                         styling_indexes=(
-                            (styling_index1 := index_offset((group[0].start(), group[0].end()), indexes_to_be_removed=prev_seq))[0], 
-                            index_offset((group[1].start(), group[1].end()), indexes_to_be_removed=prev_seq + [styling_index1])[0] -1
+                            (styling_index1 := index_offset((group[0].start(), group[0].end()), indexes=prev_seq))[0], 
+                            index_offset((group[1].start(), group[1].end()), indexes=prev_seq + [styling_index1])[0] -1
                             ),      
                         delete_indexes=True,
                         prev_seq=prev_seq,
@@ -293,5 +293,5 @@ def parse(markdown_article_path: str) -> article | None:
     return current_article
 
 if __name__ == "__main__":
-    out = parse(markdown_article_path="./src/thebrainrot_blog/tests/testdata/article_tree_test4.md")
+    out = construct_line(line_content="**Test *message* here**")
     print(out)

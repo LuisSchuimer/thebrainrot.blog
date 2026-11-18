@@ -17,11 +17,13 @@ or normal request ip addr (configured as 'non-production')"
 def get_remote_ip_addr() -> str:
     return request.headers.get("Cf-Connecting-Ip") or "" if IS_PRODUCTION else request.remote_addr or ""
 
-"Shifts index to be correct after removal of multpile others"
-def index_offset(to_be_offset: Tuple[int,int], indexes_to_be_removed: list[Tuple[int,int]]) -> Tuple[int,int]:
-    for removed in indexes_to_be_removed:
-        if removed[1] <= to_be_offset[0]:
-            offset = removed[1] - removed[0]
+"Shifts index to be correct after removal/addition of multpile others"
+def index_offset(to_be_offset: Tuple[int,int], indexes: list[Tuple[int,int]]) -> Tuple[int,int]:
+    # indexes refering to indexes that are to be removed
+    # to_be_offset refers to a index that needs to be offset
+    for index in indexes:
+        if index[1] <= to_be_offset[0]:
+            offset = index[1] - index[0]
             to_be_offset = (to_be_offset[0] - offset, to_be_offset[1] - offset)
     return to_be_offset
 
