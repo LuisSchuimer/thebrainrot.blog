@@ -18,13 +18,15 @@ def get_remote_ip_addr() -> str:
     return request.headers.get("Cf-Connecting-Ip") or "" if IS_PRODUCTION else request.remote_addr or ""
 
 "Shifts index to be correct after removal/addition of multpile others"
-def index_offset(to_be_offset: Tuple[int,int], indexes: list[Tuple[int,int]]) -> Tuple[int,int]:
+#! Tests for offsets when indexes are added
+def index_offset(to_be_offset: Tuple[int,int], indexes: list[Tuple[int,int]], removal: bool = True) -> Tuple[int,int]:
     # indexes refering to indexes that are to be removed
     # to_be_offset refers to a index that needs to be offset
     for index in indexes:
         if index[1] <= to_be_offset[0]:
             offset = index[1] - index[0]
-            to_be_offset = (to_be_offset[0] - offset, to_be_offset[1] - offset)
+            if not removal: offset = -offset
+            to_be_offset = (to_be_offset[0] - offset, to_be_offset[1] - offset) 
     return to_be_offset
 
 "Checks if user is logged in and returns the login state"

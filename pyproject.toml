@@ -28,6 +28,7 @@ dev-dependencies = []
 [tool.rye.scripts]
 "server" = "rye run python -m thebrainrot_blog.main"
 "parser" = "rye run python -m thebrainrot_blog.backend.markdown_handler.parse_markdown"
+"utils" = "rye run python -m thebrainrot_blog.utils"
 "renderer" = "rye run python -m thebrainrot_blog.backend.markdown_handler.render_article"
 "db" = "rye run python -m thebrainrot_blog.backend.database.crud"
 

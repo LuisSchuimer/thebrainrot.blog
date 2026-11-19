@@ -241,10 +241,9 @@ class ParserTester(unittest.TestCase):
 
         for test in tests: self.assertEqual(construct_line(test[0]).content, test[1])
 
-    #! More tests here
-    def test_updated_indexes(self):
+    def test_removing_styling_sequences(self):
         """
-        Test if the function for deleting indexes from lines content
+        Test if the function for deleting/adding indexes from lines content
         is correctly updating the indexes of existing styling pieces
         """
 
@@ -268,6 +267,9 @@ class ParserTester(unittest.TestCase):
 
             for count, params in enumerate(expected):
                 self.assertEqual(out.styling[styling_types.SPECIFIC][count].index, params[1])
+
+    def test_index_offset(self):
+        self.assertEqual(0, 1, "Not written yet")
 
     def test_article_references(self):
         """
