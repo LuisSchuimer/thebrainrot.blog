@@ -14,6 +14,8 @@ from thebrainrot_blog.backend.markdown_handler.handler_config import (
     data_types
 )
 
+from thebrainrot_blog.utils import index_offset
+
 class ParserTester(unittest.TestCase):
     def shortDescription(self):
         # Turn of stupid short descriptions of tests
@@ -269,7 +271,22 @@ class ParserTester(unittest.TestCase):
                 self.assertEqual(out.styling[styling_types.SPECIFIC][count].index, params[1])
 
     def test_index_offset(self):
-        self.assertEqual(0, 1, "Not written yet")
+        """
+        Tests the capabilities of the parser to offset indexes
+        correctly
+        """
+
+        test_cases: dict[tuple[tuple[int, int], tuple[int, int]], tuple[bool, tuple[int, int]]] = {
+            ((6, 8), (3, 5)): (True, (4, 6)),
+            ((6, 8), (3, 5)): (False, (8, 10)),
+            ((2, 10), (3, 7)): (True, (2, 10)),
+            ((2, 10), (3, 7)): (False, (2, 10)),
+            ((6, 9), (2, 5)): (True, (3, 6)),
+            ((6, 9), (2, 5)): (False, (9, 12)),
+        }
+
+        for (to_be_offset, index), (removal, expected) in test_cases.items():
+            self.assertEqual(index_offset(to_be_offset=to_be_offset, indexes=[index], removal=removal), expected)
 
     def test_article_references(self):
         """
