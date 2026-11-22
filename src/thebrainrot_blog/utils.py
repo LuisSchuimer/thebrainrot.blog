@@ -9,6 +9,10 @@ from datetime import datetime, timedelta
 from typing import Tuple
 
 from thebrainrot_blog.env import SERVER_SECRET, IS_PRODUCTION
+from thebrainrot_blog.backend.markdown_handler.parse_markdown import (
+    tree_node, 
+    line
+)
 
 """
 returns connecting ip addr over cloudflare (if server setup configured as 'production') 
@@ -18,7 +22,6 @@ def get_remote_ip_addr() -> str:
     return request.headers.get("Cf-Connecting-Ip") or "" if IS_PRODUCTION else request.remote_addr or ""
 
 "Shifts index to be correct after removal/addition of multpile others"
-#! Tests for offsets when indexes are added
 def index_offset(to_be_offset: Tuple[int,int], indexes: list[Tuple[int,int]], removal: bool = True) -> Tuple[int,int]:
     # indexes refering to indexes that are to be removed
     # to_be_offset refers to a index that needs to be offset
@@ -28,6 +31,19 @@ def index_offset(to_be_offset: Tuple[int,int], indexes: list[Tuple[int,int]], re
             if not removal: offset = -offset
             to_be_offset = (to_be_offset[0] - offset, to_be_offset[1] - offset) 
     return to_be_offset
+
+"Finds a node in a given tree node with index"
+#! Test this
+def search_in_tree(path: tree_node, to_find_index: int) -> line | None:
+    if found_line := path.child_lines.get(to_find_index): return found_line
+    for node in path.child_nodes:
+        if to_find_index not in node.indexes: continue
+        elif to_find_index in node.indexes and (found_line := node.child_lines.get(to_find_index)): return found_line
+        else: 
+            child_search = search_in_tree(path=node, to_find_index=to_find_index)
+            if child_search: return child_search
+            else: continue
+    return None
 
 "Checks if user is logged in and returns the login state"
 def logged_in() -> bool | None:
